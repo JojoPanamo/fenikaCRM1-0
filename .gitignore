@@ -1,0 +1,9 @@
+
+.idea/misc.xml
+*.xml
+*.properties
+target/classes/com/example/fenikaCRM10/controllers/ClientController.class
+target/classes/com/example/fenikaCRM10/FenikaCrm10Application.class
+target/classes/com/example/fenikaCRM10/models/ClientInfo.class
+target/classes/com/example/fenikaCRM10/services/ClientService.class
+target/classes/templates/clients.ftlh
