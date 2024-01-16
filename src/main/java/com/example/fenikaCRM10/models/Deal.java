@@ -5,17 +5,13 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ClientInfo {
+public class Deal {
     private Long id;
     private String name;
+//    private String nameContact;
     private String numberPhone;
     private String whatNeed;
     private String deliveryAdress;
-    private String vendorNumberPayment;
-    private String ourNumberPayment;
-    private double clientPayment;
-    private double vendorPayment;
-    private double marja = clientPayment - vendorPayment;
     private String comment;
     private String author;
 }
