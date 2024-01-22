@@ -11,7 +11,7 @@
     Номер теелфона клиента: <input type="text" name="numberPhone"/><br><br>
     Что запросил клиент: <input type="text" name="whatNeed"/><br><br>
     Адрес доставки: <input type="text" name="deliveryAdress"/><br><br>
-    Комментарий: <input type="text" name="comment"/><br><br>
+<#--    Комментарий: <input type="text" name="comment"/><br><br>-->
     Ответственный: <select name="author">
         <#list authors as author>
             <option value="${author}">${author}</option>

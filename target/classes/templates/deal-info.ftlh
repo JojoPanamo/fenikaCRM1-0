@@ -11,10 +11,13 @@
 <b> Номер теелфона клиента: </b>${deal.numberPhone}<br>
 <b> Что запросил клиент: </b>${deal.whatNeed}<br>
 <b> Адрес доставки: </b>${deal.deliveryAdress}<br>
-<b> Комментарий: </b>${deal.comment}<br>
 <b> Ответственный: </b>${deal.author}<br>
+<b> <a href="/comments/${deal.id}">Комментарии</a><br>
+    <b> <a href="/files/${deal.id}">Вложения</a><br>
+        <b> <a href="/payments/${deal.id}">Оплаты</a><br>
+            <b> <a href="/statuses/${deal.id}">Статус</a><br>
 <hr>
-<h3>Удалиьт клиента</h3>
+<h3>Удалить сделку</h3>
 <form action="deal/delete/${deal.id}" method="post">
     <input type="submit" value="Удалить"/>
 </form>

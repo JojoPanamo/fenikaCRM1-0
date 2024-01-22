@@ -3,7 +3,6 @@ import com.example.fenikaCRM10.models.Deal;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
-
 @Service
 public class DealService {
     private List<Deal> deals = new ArrayList<>();
@@ -11,7 +10,7 @@ public class DealService {
     {
         deals.add(new Deal(++ID, "Igor Petrov",
                 "+79218589636", "фальц",
-                "Хернекялла, Гачимучинское снт","отгрузка 45 августа",  "Жорка суперпродавец"
+                "Хернекялла, Гачимучинское снт",  "Жорка суперпродавец"
                 ));
     }
     public List<Deal> listDeals() {
@@ -32,4 +31,5 @@ public class DealService {
        }
        return null;
     }
+
 }

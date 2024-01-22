@@ -12,6 +12,6 @@ public class Deal {
     private String numberPhone;
     private String whatNeed;
     private String deliveryAdress;
-    private String comment;
+//    private String comment;
     private String author;
 }
