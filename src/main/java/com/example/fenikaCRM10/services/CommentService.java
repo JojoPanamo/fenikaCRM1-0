@@ -9,17 +9,19 @@ import java.util.List;
 @Service
 public class CommentService {
     private List<Comments> allComments = new ArrayList<>();
-    private long commentId = 1;
-    private long id = 1;
-    {
-        allComments.add(new Comments(id, commentId, "отгрузка завтра", "28.06.1994"));
-        allComments.add(new Comments(++id, ++commentId, "отгрузка потом", "24.06.2021"));
-    }
+    private long commentId = 0;
+//    private long id = 0;
+//    {
+//        allComments.add(new Comments(id, commentId, "отгрузка завтра", "28.06.1994"));
+//        allComments.add(new Comments(++id, ++commentId, "отгрузка потом", "24.06.2021"));
+//    }
     public List<Comments> listComments(){
         return allComments;
     }
-    public void saveComment(Comments comments){
-        comments.setId(++commentId);
+    public void saveComment(Comments comments, Long dealId){
+        comments.setId(dealId);
+        comments.setCommentId(dealId);
+        comments.setCurrentDate(DateService.getCurrentDate());
         allComments.add(comments);
     }
 

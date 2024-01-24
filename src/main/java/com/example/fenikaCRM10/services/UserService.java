@@ -7,13 +7,13 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private static List<String> authors = new ArrayList<>();
+    private static List<String> authorsList = new ArrayList<>();
     public UserService(){
-        authors.add("Cветлана");
-        authors.add("Георгий");
-        authors.add("Наталия");
+        authorsList.add("Cветлана");
+        authorsList.add("Георгий");
+        authorsList.add("Наталия");
     }
     public static List<String> getAuthors() {
-        return authors;
+        return authorsList;
     }
 }
