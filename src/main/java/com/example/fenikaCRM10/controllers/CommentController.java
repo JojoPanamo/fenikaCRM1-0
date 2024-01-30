@@ -28,6 +28,6 @@ public class CommentController {
 //        commentService.saveComment(comments.setId(id));
 //        commentService.saveComment(comments.setCommentId(id));
         commentService.saveComment(comments, id);
-        return "redirect:/comments/" + id;
+        return "redirect:/"+ id;
     }
 }

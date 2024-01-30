@@ -1,13 +1,15 @@
 package com.example.fenikaCRM10.controllers;
+
 import com.example.fenikaCRM10.models.Deal;
 import com.example.fenikaCRM10.services.DealService;
+import com.example.fenikaCRM10.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import com.example.fenikaCRM10.services.UserService;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -15,8 +17,8 @@ public class DealController {
     private final DealService dealService;
 
     @GetMapping("/")
-    public String deals(Model model) {
-        model.addAttribute("deals", dealService.listDeals());
+    public String deals(@RequestParam(name = "name", required = false) String name, Model model) {
+        model.addAttribute("deals", dealService.listDeals(name));
         return "deals";
     }
     @PostMapping("/deal-create/deal-create-save")
@@ -24,12 +26,17 @@ public class DealController {
         dealService.saveDeal(deal);
         return "redirect:/";
     }
+//    @GetMapping("/")
+//    public String dealByName(@RequestParam(name = "name", required = false) String name, Model model){
+//        model.addAttribute("dealByName", dealService.dealByName(name));
+//        return "deals";
+//    }
 
-    @PostMapping("/deal-info/deal/delete/{id}")
-    public String deleteDeal(@PathVariable Long id) {
-        dealService.deleteDeal(id);
-        return "redirect:/";
-    }
+//    @PostMapping("/deal-info/deal/delete/{id}")
+//    public String deleteDeal(@PathVariable Long id) {
+//        dealService.deleteDeal(id);
+//        return "redirect:/";
+//    }
 
     @GetMapping("deal-info/{id}")
     public String dealInfo(@PathVariable Long id, Model model) {

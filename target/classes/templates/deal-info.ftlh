@@ -16,10 +16,10 @@
     <b> <a href="/files/${deal.id}">Вложения</a><br>
         <b> <a href="/payments/${deal.id}">Оплаты</a><br>
             <b> <a href="/statuses/${deal.id}">Статус</a><br>
-<hr>
-<h3>Удалить сделку</h3>
-<form action="deal/delete/${deal.id}" method="post">
-    <input type="submit" value="Удалить"/>
-</form>
+<#--<hr>-->
+<#--<h3>Удалить сделку</h3>-->
+<#--<form action="deal/delete/${deal.id}" method="post">-->
+<#--    <input type="submit" value="Удалить"/>-->
+<#--</form>-->
 </body>
 </html>
