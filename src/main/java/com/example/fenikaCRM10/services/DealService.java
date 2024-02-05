@@ -37,8 +37,8 @@ public class DealService {
 //        deals.removeIf(deal -> deal.getId().equals(id));
 //    }
 
-    public Deal getDealById(Long id) {
-       return dealRepository.findById(id).orElse(null);
+    public Deal getDealById(Long dealId) {
+       return dealRepository.findById(dealId).orElse(null);
     }
 
 }

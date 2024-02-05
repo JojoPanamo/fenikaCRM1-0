@@ -14,7 +14,7 @@ public class Deal {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Long dealId;
     @Column(name = "name")
     private String name;
 //    private String nameContact;

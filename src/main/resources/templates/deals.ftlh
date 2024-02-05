@@ -12,12 +12,12 @@
 </form>
 <#list deals as deal>
     <div>
-        <p>${deal.id} \\
+        <p>${deal.dealId} \\
             ${deal.name} \\
             ${deal.whatNeed} \\
             <#--${deal.deliveryAdress} \\-->
             ${deal.author} |
-            <a href="/deal-info/${deal.id}">Подробнее</a>
+            <a href="/deal-info/${deal.dealId}">Подробнее</a>
         </p>
     </div>
     <#else>

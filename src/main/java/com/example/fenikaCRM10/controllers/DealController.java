@@ -38,9 +38,9 @@ public class DealController {
 //        return "redirect:/";
 //    }
 
-    @GetMapping("deal-info/{id}")
-    public String dealInfo(@PathVariable Long id, Model model) {
-        model.addAttribute("deal", dealService.getDealById(id));
+    @GetMapping("deal-info/{dealId}")
+    public String dealInfo(@PathVariable Long dealId, Model model) {
+        model.addAttribute("deal", dealService.getDealById(dealId));
         return "deal-info";
     }
     @GetMapping("/deal-create/")
