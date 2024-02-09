@@ -2,7 +2,7 @@ package com.example.fenikaCRM10.controllers;
 
 import com.example.fenikaCRM10.models.Deal;
 import com.example.fenikaCRM10.services.DealService;
-import com.example.fenikaCRM10.services.UserService;
+import com.example.fenikaCRM10.services.UserServiceList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,8 +45,16 @@ public class DealController {
     }
     @GetMapping("/deal-create/")
     public String dealCreatePAge(Model model) {
-        model.addAttribute("authors", UserService.getAuthors());
+        model.addAttribute("authors", UserServiceList.getAuthors());
 //        model.addAttribute("deal", dealService.listDeals());
         return "deal-create";
+    }
+    @GetMapping ("/deal-info/{dealId}/back")
+    public String onBackPressed(@PathVariable Long dealId) {
+        return "redirect:/";
+    }
+    @GetMapping ("/deal-create/back")
+    public String onBackPressed1() {
+        return "redirect:/";
     }
 }

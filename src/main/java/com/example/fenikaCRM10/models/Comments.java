@@ -15,11 +15,11 @@ public class Comments {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "commentId")
     private Long commentId;
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "dealId")
+    private Long dealId;
     @Column(name = "comment", columnDefinition = "text")
     private String comment;
-    @Column(name = "currentDate")
+    @Column(name = "currentDates")
     private String currentDate;
     public String getCurrentDate() {
         return currentDate;

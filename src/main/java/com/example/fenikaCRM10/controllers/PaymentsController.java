@@ -17,20 +17,34 @@ public class PaymentsController {
     private final DealService dealService;
     private final PaymentsService paymentsService;
 
-    @GetMapping("/payments/{id}")
-    public String allPayments(Model model, @PathVariable Long id) {
-        model.addAttribute("dealId", dealService.getDealById(id));
-        model.addAttribute("allPayments", paymentsService.getPaymentsByDealId(id));
+    @GetMapping("/payments/{dealId}")
+    public String allPayments(Model model, @PathVariable Long dealId) {
+        model.addAttribute("dealId", dealService.getDealById(dealId));
+        model.addAttribute("allPayments", paymentsService.getPaymentsByDealId(dealId));
         model.addAttribute("listOfStatPay", PaymentsStatusesListService.getPaymentsStatusesList());
-        model.addAttribute("earnedMoney", paymentsService.getCompanyProfit(id));
-        model.addAttribute("moneyOfManager", paymentsService.getManagerProfit(id));
+        model.addAttribute("earnedMoney", paymentsService.getCompanyProfit(dealId));
+        model.addAttribute("moneyOfManager", paymentsService.getManagerProfit(dealId));
         return "payments";
     }
 
-    @PostMapping("/savePayment/{id}")
-    public String savePayment(Payments payment, Model model, @PathVariable Long id) {
-        paymentsService.savePayment(payment, id);
+    @PostMapping("/savePayment/{dealId}")
+    public String savePayment(Payments payment, Model model, @PathVariable Long dealId) {
+        paymentsService.savePayment(payment, dealId);
+        return "redirect:/payments/" + dealId;
+    }
 
-        return "redirect:/payments/" + id;
+    @PostMapping("/payments/delete/{paymentId}")
+    public String deletePayment(@PathVariable Long paymentId) {
+        Long dealId = paymentsService.getDealIdByPaymentId(paymentId);
+        paymentsService.deletePaymentById(paymentId);
+        return "redirect:/payments/" + dealId;
+    }
+    @GetMapping ("/payments/{dealId}/back")
+    public String onBackPressed(@PathVariable Long dealId) {
+        return "redirect:/deal-info/" + dealId;
+    }
+    @GetMapping ("/payments/{dealId}/todeals")
+    public String onBackToDealsPressed(@PathVariable Long dealId) {
+        return "redirect:/";
     }
 }

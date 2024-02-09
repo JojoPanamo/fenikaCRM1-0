@@ -5,15 +5,21 @@
 </head>
 <body>
 <h1>CRM FENIKS</h1><hr>
-<h3>Оплаты сдлки № ${dealId.id}</h3>
+<h3>Оплаты сдлки № ${dealId.dealId}</h3>
 <#list allPayments as allPayment>
     <div>
-        <p> ${allPayment.currentDate} ${allPayment.statusPayments} ${allPayment.sum} ${allPayment.commentPayments}</p>
+        <p>${allPayment.paymentId} ${allPayment.dealId}
+            ${allPayment.currentDate} ${allPayment.statusPayments}
+            ${allPayment.sum} ${allPayment.commentPayments}</p>
+        <form action="/payments/delete/${allPayment.paymentId}" method="post">
+            <input type="hidden" name="_method" value="delete">
+            <button type="submit">Удалить</button>
+        </form>
     </div>
 </#list>
 <p>Прибыль компании: ${earnedMoney}</p>
 <p>Прибыль менеджера: ${moneyOfManager}</p>
-<form action="/savePayment/${dealId.id}" method="post">
+<form action="/savePayment/${dealId.dealId}" method="post">
     Сумма: <input type="number" name="sum" pattern="\d+(\,\d{1,2})?"/><br><br>
     Комментарий: <input type="text" name="commentPayments"/><br><br>
     Выберете статус: <select name="statusPayments">
@@ -24,6 +30,13 @@
 
     <input type="submit" value="Сохранить"/>
 </form>
-
+<hr>
+<form action="/payments/${dealId.dealId}/back" method="get">
+    <input type="submit" value="Назад"/>
+</form>
+<br>
+<form action="/payments/${dealId.dealId}/todeals" method="get">
+    <input type="submit" value="Назад к сделкам"/>
+</form>
 </body>
 </html>

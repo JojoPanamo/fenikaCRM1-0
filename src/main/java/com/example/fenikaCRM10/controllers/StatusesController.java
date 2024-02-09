@@ -16,18 +16,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class StatusesController {
     private final StatusesService statusesService;
     private final DealService dealService;
-    @GetMapping("/statuses/{id}")
-    public String allStatuses(Model model, @PathVariable Long id) {
-        model.addAttribute("dealId", dealService.getDealById(id));
-        model.addAttribute("allStatuses", statusesService.getStatusesByDealId(id));
+
+    @GetMapping("/statuses/{dealId}")
+    public String allStatuses(Model model, @PathVariable Long dealId) {
+        model.addAttribute("dealId", dealService.getDealById(dealId));
+        model.addAttribute("allStatuses", statusesService.getStatusesByDealId(dealId));
         model.addAttribute("statusList", StatusesListService.getStatusesList());
         return "statuses";
     }
-    @PostMapping("/saveStatus/{id}")
-    public String saveStatus(Statuses statuses, @PathVariable Long id) {
-//        commentService.saveComment(comments.setId(id));
-//        commentService.saveComment(comments.setCommentId(id));
-        statusesService.saveStatus(statuses, id);
-        return "redirect:/statuses/" + id;
+
+    @PostMapping("/saveStatus/{dealId}")
+    public String saveStatus(Statuses statuses, @PathVariable Long dealId) {
+        statusesService.saveStatus(statuses, dealId);
+        return "redirect:/statuses/" + dealId;
+    }
+    @GetMapping ("/statuses/{dealId}/back")
+    public String onBackPressed(@PathVariable Long dealId) {
+        return "redirect:/deal-info/" + dealId;
+    }
+    @GetMapping ("/statuses/{dealId}/todeals")
+    public String onBackToDealsPressed(@PathVariable Long dealId) {
+        return "redirect:/";
     }
 }

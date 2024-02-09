@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -14,8 +13,8 @@ import java.util.List;
 @Slf4j
 public class CommentService {
     private final CommentRepository commentRepository;
-    private List<Comments> allComments = new ArrayList<>();
-    private long commentId = 0;
+//    private List<Comments> allComments = new ArrayList<>();
+//    private long commentId = 0;
 //    private long id = 0;
 //    {
 //        allComments.add(new Comments(id, commentId, "отгрузка завтра", "28.06.1994"));
@@ -25,21 +24,22 @@ public class CommentService {
 //        return allComments;
 //    }
     public void saveComment(Comments comments, Long dealId){
-        comments.setId(dealId);
-        comments.setCommentId(dealId);
+        comments.setDealId(dealId);
+//        comments.setCommentId(dealId);
         comments.setCurrentDate(DateService.getCurrentDate());
-        allComments.add(comments);
+        commentRepository.save(comments);
     }
 
     public List<Comments> getCommentsByDealId(Long dealId) {
-        List<Comments> commentsByDealId = new ArrayList<>();
+        return commentRepository.findAllByDealId(dealId);
+    }
 
-        for (Comments comment : allComments) {
-            if (comment.getCommentId().equals(dealId)) {
-                commentsByDealId.add(comment);
-            }
+    public Long getDealByCommentId(Long commentId) {
+        Comments comments = commentRepository.findById(commentId).orElse(null);
+        if (comments != null) {
+            return comments.getDealId();
+        } else {
+            return null;
         }
-
-        return commentsByDealId;
     }
 }

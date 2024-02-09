@@ -1,37 +1,31 @@
 package com.example.fenikaCRM10.services;
 
 import com.example.fenikaCRM10.models.Payments;
+import com.example.fenikaCRM10.repositories.PaymentsRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class PaymentsService {
-    private Map<Long, List<Payments>> paymentsByDeal = new HashMap<>();
-    private Map<Long, Double> companyProfitByDeal = new HashMap<>();
-    private Map<Long, Double> managerProfitByDeal = new HashMap<>();
+    private final PaymentsRepository paymentsRepository;
 
     public void savePayment(Payments payment, Long dealId) {
         payment.setDealId(dealId);
         payment.setCurrentDate(DateService.getCurrentDate());
-        paymentsByDeal.computeIfAbsent(dealId, k -> new ArrayList<>()).add(payment);
-        calculateProfits(dealId);
+        paymentsRepository.save(payment);
     }
 
     public List<Payments> getPaymentsByDealId(Long dealId) {
-        return paymentsByDeal.getOrDefault(dealId, Collections.emptyList());
+        return paymentsRepository.findAllByDealId(dealId);
     }
 
     public Double getCompanyProfit(Long dealId) {
-        return companyProfitByDeal.getOrDefault(dealId, 0.0);
-    }
-
-    public Double getManagerProfit(Long dealId) {
-        return managerProfitByDeal.getOrDefault(dealId, 0.0);
-    }
-
-    private void calculateProfits(Long dealId) {
-        List<Payments> payments = paymentsByDeal.getOrDefault(dealId, Collections.emptyList());
+        List<Payments> payments = paymentsRepository.findAllByDealId(dealId);
         double companyProfit = 0.0;
 
         for (Payments payment : payments) {
@@ -43,9 +37,24 @@ public class PaymentsService {
                 companyProfit -= payment.getSum();
             }
         }
-        double managerProfit = companyProfit * 0.25;
 
-        companyProfitByDeal.put(dealId, companyProfit);
-        managerProfitByDeal.put(dealId, managerProfit);
+        return companyProfit;
+    }
+
+    public Double getManagerProfit(Long dealId) {
+        double companyProfit = getCompanyProfit(dealId);
+        return companyProfit * 0.25;
+    }
+
+    public void deletePaymentById(Long paymentId) {
+        paymentsRepository.deleteById(paymentId);
+    }
+    public Long getDealIdByPaymentId(Long paymentId) {
+        Payments payment = paymentsRepository.findById(paymentId).orElse(null);
+        if (payment != null) {
+            return payment.getDealId();
+        } else {
+            return null;
+        }
     }
 }

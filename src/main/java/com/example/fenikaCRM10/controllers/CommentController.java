@@ -17,17 +17,26 @@ public class CommentController {
     private final CommentService commentService;
     private final DealService dealService;
 
-    @GetMapping("/comments/{id}")
-    public String allComments(Model model, @PathVariable Long id){
-        model.addAttribute("dealId", dealService.getDealById(id));
-        model.addAttribute("comments", commentService.getCommentsByDealId(id));
+    @GetMapping("/comments/{dealId}")
+    public String allComments(Model model, @PathVariable Long dealId){
+        model.addAttribute("dealId", dealService.getDealById(dealId));
+        model.addAttribute("comments", commentService.getCommentsByDealId(dealId));
         return "comments";
     }
-    @PostMapping("/saveComment/{id}")
-    public String saveComment(Comments comments, @PathVariable Long id) {
+    @PostMapping("/saveComment/{dealId}")
+    public String saveComment(Comments comments, @PathVariable Long dealId) {
 //        commentService.saveComment(comments.setId(id));
 //        commentService.saveComment(comments.setCommentId(id));
-        commentService.saveComment(comments, id);
-        return "redirect:/"+ id;
+        commentService.saveComment(comments, dealId);
+        return "redirect:/comments/"+ dealId;
+    }
+    @GetMapping ("/comments/{dealId}/back")
+    public String onBackPressed(@PathVariable Long dealId) {
+//        dealId = commentService.getDealByCommentId(commentId);
+        return "redirect:/deal-info/" + dealId;
+    }
+    @GetMapping ("/comments/{dealId}/todeals")
+    public String onBackToDealsPressed(@PathVariable Long dealId) {
+        return "redirect:/";
     }
 }

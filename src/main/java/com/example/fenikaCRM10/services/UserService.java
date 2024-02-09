@@ -1,19 +1,27 @@
 package com.example.fenikaCRM10.services;
 
+import com.example.fenikaCRM10.models.User;
+import com.example.fenikaCRM10.models.enums.Role;
+import com.example.fenikaCRM10.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class UserService {
-    private static List<String> authorsList = new ArrayList<>();
-    public UserService(){
-        authorsList.add("Cветлана");
-        authorsList.add("Георгий");
-        authorsList.add("Наталия");
-    }
-    public static List<String> getAuthors() {
-        return authorsList;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    public boolean createUser(User user){
+        String email = user.getEmail();
+        if (userRepository.findByEmail(user.getEmail())!=null)
+            return false;
+        user.setActive(true);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.getRoles().add(Role.ROLE_USER);
+        log.info("new user saved with email: {}", email);
+        return true;
     }
 }

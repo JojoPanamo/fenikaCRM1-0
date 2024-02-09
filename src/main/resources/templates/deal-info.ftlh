@@ -16,10 +16,9 @@
     <b> <a href="/files/${deal.dealId}">Вложения</a><br>
         <b> <a href="/payments/${deal.dealId}">Оплаты</a><br>
             <b> <a href="/statuses/${deal.dealId}">Статус</a><br>
-<#--<hr>-->
-<#--<h3>Удалить сделку</h3>-->
-<#--<form action="deal/delete/${deal.id}" method="post">-->
-<#--    <input type="submit" value="Удалить"/>-->
-<#--</form>-->
+<hr>
+<form action="/deal-info/${deal.dealId}/back" method="get">
+    <input type="submit" value="Назад к сделкам"/>
+</form>
 </body>
 </html>

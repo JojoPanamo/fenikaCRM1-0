@@ -1,30 +1,27 @@
 package com.example.fenikaCRM10.services;
 
 import com.example.fenikaCRM10.models.Statuses;
+import com.example.fenikaCRM10.repositories.StatusesRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class StatusesService {
-    private List<Statuses> allStatuses = new ArrayList<>();
+    private final StatusesRepository statusesRepository;
+//    private List<Statuses> allStatuses = new ArrayList<>();
 
     public void saveStatus(Statuses statuses, Long dealId){
-        statuses.setId(dealId);
-        statuses.setStatusId(dealId);
+        statuses.setDealId(dealId);
         statuses.setCurrentDate(DateService.getCurrentDate());
-        allStatuses.add(statuses);
+        statusesRepository.save(statuses);
     }
+
     public List<Statuses> getStatusesByDealId(Long dealId) {
-        List<Statuses> statusesByDealId = new ArrayList<>();
-
-        for (Statuses statuses : allStatuses) {
-            if (statuses.getStatusId().equals(dealId)) {
-                statusesByDealId.add(statuses);
-            }
-        }
-
-        return statusesByDealId;
+        return statusesRepository.findAllByDealId(dealId);
     }
 }

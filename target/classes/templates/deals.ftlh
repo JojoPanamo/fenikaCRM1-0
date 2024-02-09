@@ -18,12 +18,19 @@
             <#--${deal.deliveryAdress} \\-->
             ${deal.author} |
             <a href="/deal-info/${deal.dealId}">Подробнее</a>
+<#--        <form action="/deal-info/${deal.dealId}">-->
+<#--            <input type="submit" value="подробнее"/>-->
+<#--        </form>-->
         </p>
     </div>
     <#else>
     <h3>Пока нет сделок</h3>
 </#list>
+<#--<hr>-->
+<#--<a href="/deal-create/">создать новую сделку</a>-->
 <hr>
-<a href="/deal-create/">создать новую сделку</a>
+<form action="/deal-create/">
+    <input type="submit" value="Cоздать новую сделку"/>
+</form>
 </body>
 </html>

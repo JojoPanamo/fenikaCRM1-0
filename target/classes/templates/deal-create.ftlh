@@ -19,5 +19,9 @@
     </select><br><br>
     <input type="submit" value="Сохранить"/>
 </form>
+<hr>
+<form action="/deal-create/back" method="get">
+    <input type="submit" value="Назад"/>
+</form>
 </body>
 </html>
