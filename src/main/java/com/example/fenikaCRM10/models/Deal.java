@@ -27,4 +27,9 @@ public class Deal {
 //    private String comment;
     @Column(name = "author")
     private String author;
+    @Column(name = "email")
+    private String email;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false) // Внешний ключ на таблицу пользователей
+    private User user;
 }

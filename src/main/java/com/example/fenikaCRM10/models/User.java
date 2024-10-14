@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,6 +43,8 @@ public class User implements UserDetails {
     private void init(){
         dateOfCreated = LocalDateTime.now();
     }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Deal> deals = new HashSet<>();
 
 
     @Override

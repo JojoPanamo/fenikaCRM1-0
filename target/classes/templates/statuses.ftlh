@@ -26,7 +26,7 @@
     <input type="submit" value="Назад"/>
 </form>
 <br>
-<form action="/statuses/${dealId.dealId}/todeals" method="get">
+<form action="/deals" method="get">
     <input type="submit" value="Назад к сделкам"/>
 </form>
 </body>

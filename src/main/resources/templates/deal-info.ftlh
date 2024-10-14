@@ -17,7 +17,7 @@
         <b> <a href="/payments/${deal.dealId}">Оплаты</a><br>
             <b> <a href="/statuses/${deal.dealId}">Статус</a><br>
 <hr>
-<form action="/deal-info/${deal.dealId}/back" method="get">
+<form action="/deals" method="get">
     <input type="submit" value="Назад к сделкам"/>
 </form>
 </body>
