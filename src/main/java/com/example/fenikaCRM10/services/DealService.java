@@ -1,6 +1,7 @@
 package com.example.fenikaCRM10.services;
 
 import com.example.fenikaCRM10.models.Deal;
+import com.example.fenikaCRM10.models.User;
 import com.example.fenikaCRM10.repositories.DealRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,5 +37,8 @@ public class DealService {
     // Метод для получения сделки по ID
     public Deal getDealById(Long dealId) {
         return dealRepository.findById(dealId).orElse(null);  // Поиск сделки по ID
+    }
+    public List<Deal> findByUser(User user) {
+        return dealRepository.findByUser(user);
     }
 }

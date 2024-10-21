@@ -27,7 +27,7 @@ public class User implements UserDetails {
     private String email;
     @Column(name = "phone_number")
     private String phoneNumber;
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
     @Column(name = "active")
     private boolean active;

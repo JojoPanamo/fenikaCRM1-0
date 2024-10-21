@@ -29,7 +29,7 @@ public class Deal {
     private String author;
     @Column(name = "email")
     private String email;
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // Внешний ключ на таблицу пользователей
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false) // Привязываем сделку к пользователю
     private User user;
 }

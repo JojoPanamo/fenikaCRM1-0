@@ -2,11 +2,13 @@ package com.example.fenikaCRM10.controllers;
 
 import com.example.fenikaCRM10.models.Deal;
 import com.example.fenikaCRM10.models.User;
+import com.example.fenikaCRM10.repositories.DealRepository;
 import com.example.fenikaCRM10.services.CustomUserDetails;
 import com.example.fenikaCRM10.services.DealService;
 import com.example.fenikaCRM10.services.UserService;
 import com.example.fenikaCRM10.services.UserServiceList;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +22,7 @@ import java.util.List;
 public class DealController {
     private final DealService dealService;
     private final UserService userService;
+    private final DealRepository dealRepository;
 
     //    @GetMapping("/deals/")
 //    public String deals(@RequestParam(name = "name", required = false) String name, Model model) {
@@ -27,26 +30,37 @@ public class DealController {
 //        return "deals";
 //    }
     @GetMapping("/deals")
-    public String getUserDeals(Model model, Principal principal) {
-        Long userId = userService.findUserIdByPrincipal(principal);
-        List<Deal> userDeals = dealService.findDealsByUserId(userId);
-        model.addAttribute("deals", userDeals);
-        return "deals"; // Название шаблона
-    }
-    @PostMapping("/deal-create/deal-create-save")
-    public String createDealSave(@ModelAttribute Deal deal, Principal principal) {
-        // Получаем текущего пользователя на основе Principal
-        Long userId = userService.findUserIdByPrincipal(principal);
-        User currentUser = userService.findById(userId);
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public String getUserDeals(Model model) {
+        // Получаем текущего пользователя
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = userService.findById(userDetails.getId());
 
-        // Устанавливаем пользователя и автора сделки
+        // Находим сделки этого пользователя
+        List<Deal> userDeals = dealService.findByUser(currentUser);
+
+        // Добавляем сделки в модель для отображения на странице
+        model.addAttribute("deals", userDeals);
+
+        return "deals"; // Отображаем страницу со списком сделок
+    }
+
+    @PostMapping("/deal-create-save")
+    public String createDealSave(@ModelAttribute Deal deal, Principal principal) {
+        // Получаем текущего пользователя
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = userService.findById(userDetails.getId());
+
+        // Устанавливаем пользователя сделки
         deal.setUser(currentUser);
-        deal.setAuthor(currentUser.getName()); // Или другое поле, которое хотите использовать как имя автора
+
+        // Устанавливаем автора сделки
+        deal.setAuthor(currentUser.getName());
 
         // Сохраняем сделку
         dealService.saveDeal(deal);
 
-        return "redirect:/deals/";
+        return "redirect:/deals";
     }
 
 //    @PostMapping("/deal-create")
@@ -85,7 +99,7 @@ public class DealController {
         model.addAttribute("deal", dealService.getDealById(dealId));
         return "deal-info";
     }
-    @GetMapping("/deal-create/")
+    @GetMapping("/deal-create")
     public String dealCreatePAge(Model model) {
         model.addAttribute("authors", UserServiceList.getAuthors());
 //        model.addAttribute("deal", dealService.listDeals());
