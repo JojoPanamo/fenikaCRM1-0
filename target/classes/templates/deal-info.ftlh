@@ -11,7 +11,8 @@
 <b> Номер теелфона клиента: </b>${deal.numberPhone}<br>
 <b> Что запросил клиент: </b>${deal.whatNeed}<br>
 <b> Адрес доставки: </b>${deal.deliveryAdress}<br>
-<b> Ответственный: </b>${deal.author}<br>
+<b> Ответственный: </b>${deal.user.name}<br>
+<b>Прибыль компании: </b>${deal.companyProfit} <br>
 <b> <a href="/comments/${deal.dealId}">Комментарии</a><br>
     <b> <a href="/files/${deal.dealId}">Вложения</a><br>
         <b> <a href="/payments/${deal.dealId}">Оплаты</a><br>
@@ -19,6 +20,9 @@
 <hr>
 <form action="/deals" method="get">
     <input type="submit" value="Назад к сделкам"/>
+</form>
+<form action="/logout" method="post">
+    <input type="submit" value="Выйти"/>
 </form>
 </body>
 </html>

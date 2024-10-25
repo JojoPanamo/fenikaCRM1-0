@@ -28,5 +28,8 @@
 <form action="/deals" method="get">
     <input type="submit" value="Назад к сделкам"/>
 </form>
+<form action="/logout" method="post">
+    <input type="submit" value="Выйти"/>
+</form>
 </body>
 </html>

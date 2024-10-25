@@ -29,7 +29,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/deals", true) // После успешного входа перенаправить сюда
+                        .defaultSuccessUrl("/statistics", true) // После успешного входа перенаправить сюда
                         .permitAll()
                 )
                 .logout(logout -> logout

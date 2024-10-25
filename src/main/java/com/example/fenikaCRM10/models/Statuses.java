@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Statuses {
     @Id
-    @Column(name = "statusId")
+    @Column(name = "status_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long statusId;
-    @Column(name = "dealId")
+    @Column(name = "deal_id")
     private Long dealId;
     @Column(name = "statusComment")
     private String statusComment;

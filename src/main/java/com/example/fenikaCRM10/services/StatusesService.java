@@ -24,4 +24,15 @@ public class StatusesService {
     public List<Statuses> getStatusesByDealId(Long dealId) {
         return statusesRepository.findAllByDealId(dealId);
     }
+    public String getLastStatusForDeal(Long dealId) {
+        // Получаем последний статус по ID сделки, сортируя по дате или ID
+        Statuses lastStatus = statusesRepository.findTopByDealIdOrderByCurrentDateDesc(dealId);
+
+        // Если статус найден, возвращаем его, иначе возвращаем сообщение о том, что статус не установлен
+        if (lastStatus != null) {
+            return lastStatus.getStatusChoose();
+        } else {
+            return "Статус не установлен";
+        }
+    }
 }

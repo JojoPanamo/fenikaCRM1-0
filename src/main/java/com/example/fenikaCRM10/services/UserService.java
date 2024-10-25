@@ -42,5 +42,9 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
     }
+    public User findByPrincipal(CustomUserDetails customUserDetails) {
+        return userRepository.findById(customUserDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
 }
 

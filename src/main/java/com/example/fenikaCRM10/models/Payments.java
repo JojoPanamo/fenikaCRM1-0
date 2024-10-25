@@ -15,7 +15,7 @@ public class Payments {
     @Column(name = "paymentId")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long paymentId;
-    @Column(name = "dealId")
+    @Column(name = "deal_id")
     private Long dealId;
     @Column(name = "comment_payments")
     private String commentPayments;
@@ -29,4 +29,10 @@ public class Payments {
     private Double earnedMoney;
     @Column(name = "money_of_manager")
     private Double moneyOfManager;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deal", nullable = false)
+    private Deal deal;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

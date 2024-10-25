@@ -3,10 +3,7 @@ package com.example.fenikaCRM10.controllers;
 import com.example.fenikaCRM10.models.Deal;
 import com.example.fenikaCRM10.models.User;
 import com.example.fenikaCRM10.repositories.DealRepository;
-import com.example.fenikaCRM10.services.CustomUserDetails;
-import com.example.fenikaCRM10.services.DealService;
-import com.example.fenikaCRM10.services.UserService;
-import com.example.fenikaCRM10.services.UserServiceList;
+import com.example.fenikaCRM10.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -23,6 +21,8 @@ public class DealController {
     private final DealService dealService;
     private final UserService userService;
     private final DealRepository dealRepository;
+    private final PaymentsService paymentsService;
+    private final StatusesService statusesService;
 
     //    @GetMapping("/deals/")
 //    public String deals(@RequestParam(name = "name", required = false) String name, Model model) {
@@ -31,19 +31,31 @@ public class DealController {
 //    }
     @GetMapping("/deals")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public String getUserDeals(Model model) {
+    public String getUserDeals(
+            @RequestParam(name = "statusFilter", required = false, defaultValue = "Новая заявка,В работе,Оплачен") String statusFilter,
+            Model model) {
         // Получаем текущего пользователя
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userService.findById(userDetails.getId());
 
-        // Находим сделки этого пользователя
-        List<Deal> userDeals = dealService.findByUser(currentUser);
+        // Преобразуем строку фильтров в список статусов
+        List<String> statuses = Arrays.asList(statusFilter.split(","));
 
-        // Добавляем сделки в модель для отображения на странице
+        // Получаем сделки, соответствующие статусам
+        List<Deal> userDeals = dealService.findDealsByStatuses(currentUser, statuses);
+        for (Deal deal : userDeals) {
+            deal.setCompanyProfit(paymentsService.getCompanyProfit(deal.getDealId()));
+
+            // Получаем последний статус сделки
+            String lastStatus = statusesService.getLastStatusForDeal(deal.getDealId());
+            deal.setLastStatus(lastStatus);
+        }
+
         model.addAttribute("deals", userDeals);
-
+        model.addAttribute("selectedStatuses", statuses); // Добавляем выбранные статусы для отображения
         return "deals"; // Отображаем страницу со списком сделок
     }
+
 
     @PostMapping("/deal-create-save")
     public String createDealSave(@ModelAttribute Deal deal, Principal principal) {
@@ -96,6 +108,12 @@ public class DealController {
 
     @GetMapping("deal-info/{dealId}")
     public String dealInfo(@PathVariable Long dealId, Model model) {
+        CustomUserDetails userDetailsInfo = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = userService.findById(userDetailsInfo.getId());
+        List<Deal> userDeals = dealService.findByUser(currentUser);
+        for (Deal deal : userDeals) {
+            deal.setCompanyProfit(paymentsService.getCompanyProfit(deal.getDealId()));
+        }
         model.addAttribute("deal", dealService.getDealById(dealId));
         return "deal-info";
     }

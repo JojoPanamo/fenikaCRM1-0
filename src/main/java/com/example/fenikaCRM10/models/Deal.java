@@ -32,4 +32,10 @@ public class Deal {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false) // Привязываем сделку к пользователю
     private User user;
+    @Transient // Это поле не сохраняется в базу данных
+    private double companyProfit;
+    @Column(name = "status")
+    private String status;
+    @Transient
+    private String lastStatus;
 }
