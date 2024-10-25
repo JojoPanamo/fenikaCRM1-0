@@ -28,4 +28,9 @@ public interface DealRepository extends JpaRepository<Deal, Long> {
     @Query("SELECT d FROM Deal d WHERE d.user = :user AND (SELECT s.statusChoose FROM Statuses s WHERE s.dealId = d.dealId ORDER BY s.statusId DESC LIMIT 1) IN :statuses")
     List<Deal> findByUserAndStatuses(@Param("user") User user, @Param("statuses") List<String> statuses);
 
+    @Query("SELECT d FROM Deal d WHERE MONTH(d.creationDate) = :month AND YEAR(d.creationDate) = :year")
+    List<Deal> findByMonthAndYear(@Param("month") int month, @Param("year") int year);
+
+
+
 }

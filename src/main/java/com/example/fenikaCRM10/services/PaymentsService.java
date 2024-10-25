@@ -120,5 +120,15 @@ public class PaymentsService {
 
         return managerProfit;
     }
+    public double getTotalPayments(Long dealId) {
+        // Получаем все платежи по конкретной сделке
+        List<Payments> payments = paymentsRepository.findAllByDealId(dealId);
+
+        // Суммируем все поступления по сделке
+        return payments.stream()
+                .filter(payment -> "Поступление".equals(payment.getStatusPayments())) // Фильтруем только поступления
+                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0)) // Если сумма null, заменяем 0
+                .sum();
+    }
 }
 

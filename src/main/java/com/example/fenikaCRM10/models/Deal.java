@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "deal")
 @Data
@@ -38,4 +40,6 @@ public class Deal {
     private String status;
     @Transient
     private String lastStatus;
+    @Column(name = "creation_date")
+    private LocalDate creationDate;
 }

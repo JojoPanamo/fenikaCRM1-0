@@ -1,6 +1,7 @@
 package com.example.fenikaCRM10.services;
 
 import com.example.fenikaCRM10.models.Deal;
+import com.example.fenikaCRM10.models.StatisticsDTO;
 import com.example.fenikaCRM10.models.Statuses;
 import com.example.fenikaCRM10.models.User;
 import com.example.fenikaCRM10.repositories.DealRepository;
@@ -9,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +21,7 @@ import java.util.List;
 public class DealService {
     private final DealRepository dealRepository;
     private final StatusesRepository statusesRepository;
+    private final PaymentsService paymentsService;
 
     // Метод для поиска сделок по userId
     public List<Deal> findDealsByUserId(Long userId) {
@@ -84,5 +88,53 @@ public class DealService {
     public List<Deal> findDealsByStatuses(User user, List<String> statuses) {
         return dealRepository.findByUserAndStatuses(user, statuses);  // Поиск сделок по статусам и пользователю
     }
+    public List<Deal> getDealsForCurrentMonth() {
+        LocalDate now = LocalDate.now();
+        // Здесь нужно добавить метод в репозиторий, который фильтрует сделки по месяцу и году
+        return dealRepository.findByMonthAndYear(now.getMonthValue(), now.getYear());
+    }
 
+    // Получение сделок для статистики с учетом фильтров
+    public StatisticsDTO getDealsForStatistics() {
+        LocalDate now = LocalDate.now();
+        List<Deal> allDeals = getDealsForCurrentMonth();
+
+        // Фильтрация завершенных и отказанных сделок
+        List<Deal> completedDeals = allDeals.stream()
+                .filter(deal -> "Завершен".equals(deal.getStatus()) || "Отказ".equals(deal.getStatus()))
+                .collect(Collectors.toList());
+
+        // Фильтрация сделок для переноса в следующий месяц
+        List<Deal> pendingDeals = allDeals.stream()
+                .filter(deal -> "В работе".equals(deal.getStatus()) ||
+                        "Оплачен".equals(deal.getStatus()) ||
+                        "Новая заявка".equals(deal.getStatus()))
+                .collect(Collectors.toList());
+
+        // Расчет прибыли компании по завершенным сделкам
+        double companyProfit = completedDeals.stream()
+                .mapToDouble(deal -> paymentsService.getCompanyProfit(deal.getDealId()))
+                .sum();
+
+        // Расчет прибыли менеджера
+        double managerProfit = completedDeals.stream()
+                .mapToDouble(deal -> paymentsService.getManagerProfit(deal.getDealId()))
+                .sum();
+
+        // Сумма поступлений за текущий месяц
+        double totalPayments = allDeals.stream()
+                .mapToDouble(deal -> paymentsService.getTotalPayments(deal.getDealId()))
+                .sum();
+
+        // Преобразуем списки сделок в списки названий для конструктора StatisticsDTO
+        List<String> completedDealNames = completedDeals.stream()
+                .map(Deal::getName)
+                .collect(Collectors.toList());
+
+        List<String> pendingDealNames = pendingDeals.stream()
+                .map(Deal::getName)
+                .collect(Collectors.toList());
+
+        return new StatisticsDTO(companyProfit, managerProfit, totalPayments, completedDealNames, pendingDealNames);
+    }
 }

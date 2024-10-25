@@ -3,6 +3,7 @@ com/example/fenikaCRM10/controllers/DealController.class
 com/example/fenikaCRM10/controllers/PaymentsController.class
 com/example/fenikaCRM10/configirations/SecurityConfig.class
 com/example/fenikaCRM10/services/StatusesListService.class
+com/example/fenikaCRM10/models/StatisticsDTO.class
 com/example/fenikaCRM10/FenikaCrm10Application.class
 com/example/fenikaCRM10/repositories/FilesRepository.class
 com/example/fenikaCRM10/models/Statuses.class

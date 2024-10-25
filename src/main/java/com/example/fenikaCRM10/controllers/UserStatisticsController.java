@@ -28,6 +28,7 @@ public class UserStatisticsController {
         // Получаем текущего пользователя
         User currentUser = userService.findByPrincipal(
                 (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        String userName = currentUser.getName();
 
         // Количество сделок по статусам
         List<String> statuses = Arrays.asList("В работе", "Оплачен", "Новая заявка");
@@ -44,6 +45,7 @@ public class UserStatisticsController {
         double managerProfit = paymentsService.getManagerProfitForUser(currentUser);
 
         // Добавляем атрибуты в модель
+        model.addAttribute("userName", userName);
         model.addAttribute("completedDealsCount", completedDealsCount);
         model.addAttribute("inProgressOrPaidDealsCount", inProgressOrPaidDealsCount);
         model.addAttribute("refusedDealsCount", refusedDealsCount);
