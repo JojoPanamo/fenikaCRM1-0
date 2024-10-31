@@ -45,7 +45,7 @@
             width: 40px;
             height: 25px;
             margin-bottom: 5px;
-            filter: brightness(0) invert(1); /* Белый цвет иконок */
+            filter: brightness(0) invert(1);
         }
 
         /* Content Area */
@@ -53,7 +53,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: calc(100% - 70px); /* Ширина без учета бокового меню */
+            width: calc(100% - 70px);
         }
 
         /* Layout Containers */
@@ -157,51 +157,134 @@
         <img src="/icons/exit.svg" alt="Выход">
         <p>Выход</p>
     </a>
+    <a href="/registration">
+        <img src="/icons/reg.svg" alt="новый пользователь">
+        <p>+ Юзер</p>
+    </a>
+    <a href="/user-settings">
+        <img src="/icons/sett.svg" alt="Настройки пользователя">
+        <p>Настр</p>
+    </a>
 </div>
 
 <!-- Content Area -->
 <div class="content">
-    <h1>${userName}</h1>
+    <#if isAdmin>
+        <!-- Общая статистика по компании -->
+        <div class="stats-wrapper">
+            <h2>Общая статистика компании</h2>
+            <div class="row">
+                <div class="stat-block">
+                    <div class="number">${completedDealsCount!0}</div>
+                    <p>Завершенные сделки</p>
+                </div>
+                <div class="stat-block">
+                    <div class="number">${inProgressOrPaidDealsCount!0}</div>
+                    <p>Сделки в работе и оплаченные</p>
+                </div>
+                <div class="stat-block">
+                    <div class="number">${refusedDealsCount!0}</div>
+                    <p>Отказанные сделки</p>
+                </div>
+            </div>
 
-    <div class="stats-wrapper">
-        <!-- Row for deal counts -->
-        <div class="row">
-            <div class="stat-block">
-                <div class="number">${completedDealsCount}</div>
-                <p>Завершенные сделки</p>
-            </div>
-            <div class="stat-block">
-                <div class="number">${inProgressOrPaidDealsCount}</div>
-                <p>Сделки в работе и оплаченные</p>
-            </div>
-            <div class="stat-block">
-                <div class="number">${refusedDealsCount}</div>
-                <p>Отказанные сделки</p>
-            </div>
-            <div class="stat-block">
-                <div class="number">25</div>
-                <p>Ваш процент</p>
+            <div class="row">
+                <div class="large-block">
+                    <div class="number">${totalPayments!0.0}</div>
+                    <p>Общая сумма оплат</p>
+                </div>
+                <div class="large-block">
+                    <div class="number">${companyProfit!0.0}</div>
+                    <p>Прибыль компании</p>
+                </div>
             </div>
         </div>
 
-        <!-- Row for payments and company profit -->
-        <div class="row">
-            <div class="large-block">
-                <div class="number">${totalPayments}</div>
-                <p>Общая сумма оплат</p>
-            </div>
-            <div class="large-block">
-                <div class="number">${companyProfit}</div>
-                <p>Прибыль компании</p>
-            </div>
-        </div>
+        <!-- Статистика по каждому менеджеру -->
+        <#list userStatisticsMap?keys as userId>
+            <div class="stats-wrapper">
+                <h2>Статистика для ${userNamesMap[userId]}</h2>
 
-        <!-- Manager profit block -->
-        <div class="manager-profit">
-            <div class="number">${managerProfit}</div>
-            <p>Прибыль менеджера</p>
+                <#if userStatisticsMap[userId]??>
+                    <div class="row">
+                        <div class="stat-block">
+                            <div class="number">${userStatisticsMap[userId].completedDeals!0}</div>
+                            <p>Завершенные сделки</p>
+                        </div>
+                        <div class="stat-block">
+                            <div class="number">${userStatisticsMap[userId].inProgressOrPaidDeals!0}</div>
+                            <p>Сделки в работе и оплаченные</p>
+                        </div>
+                        <div class="stat-block">
+                            <div class="number">${userStatisticsMap[userId].refusedDeals!0}</div>
+                            <p>Отказанные сделки</p>
+                        </div>
+                        <div class="stat-block">
+                            <div class="number">${userStatisticsMap[userId].percentage!0}</div>
+                            <p>Ваш процент</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="large-block">
+                            <div class="number">${userStatisticsMap[userId].totalPayments!0.0}</div>
+                            <p>Общая сумма оплат</p>
+                        </div>
+                        <div class="large-block">
+                            <div class="number">${userStatisticsMap[userId].companyProfit!0.0}</div>
+                            <p>Прибыль компании</p>
+                        </div>
+                    </div>
+
+                    <div class="manager-profit">
+                        <div class="number">${userStatisticsMap[userId].managerProfit!0.0}</div>
+                        <p>Прибыль менеджера</p>
+                    </div>
+                <#else>
+                    <p>Нет доступной статистики для данного пользователя.</p>
+                </#if>
+            </div>
+        </#list>
+    <#else>
+        <!-- Статистика для текущего пользователя -->
+        <div class="stats-wrapper">
+            <h2>Ваша статистика</h2>
+            <div class="row">
+                <div class="stat-block">
+                    <div class="number">${completedDealsCount!0}</div>
+                    <p>Завершенные сделки</p>
+                </div>
+                <div class="stat-block">
+                    <div class="number">${inProgressOrPaidDealsCount!0}</div>
+                    <p>Сделки в работе и оплаченные</p>
+                </div>
+                <div class="stat-block">
+                    <div class="number">${refusedDealsCount!0}</div>
+                    <p>Отказанные сделки</p>
+                </div>
+                <div class="stat-block">
+                    <div class="number">${percentage}</div>
+                    <p>Ваш процент</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="large-block">
+                    <div class="number">${totalPayments!0.0}</div>
+                    <p>Общая сумма оплат</p>
+                </div>
+                <div class="large-block">
+                    <div class="number">${companyProfit!0.0}</div>
+                    <p>Прибыль компании</p>
+                </div>
+            </div>
+
+            <div class="manager-profit">
+                <div class="number">${managerProfit!0.0}</div>
+                <p>Прибыль менеджера</p>
+            </div>
         </div>
-    </div>
+    </#if>
 </div>
 </body>
 </html>

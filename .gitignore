@@ -7,3 +7,8 @@ target/classes/com/example/fenikaCRM10/FenikaCrm10Application.class
 target/classes/com/example/fenikaCRM10/models/ClientInfo.class
 target/classes/com/example/fenikaCRM10/services/ClientService.class
 target/classes/templates/clients.ftlh
+logs/application.log
+logs/application.log
+logs/application.log
+logs/application.log.2024-10-23.0.gz
+logs/application.log.2024-10-30.0.gz

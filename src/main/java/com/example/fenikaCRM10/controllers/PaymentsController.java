@@ -4,10 +4,9 @@ import com.example.fenikaCRM10.models.Deal;
 import com.example.fenikaCRM10.models.Payments;
 import com.example.fenikaCRM10.models.User;
 import com.example.fenikaCRM10.repositories.PaymentsRepository;
-import com.example.fenikaCRM10.services.DealService;
-import com.example.fenikaCRM10.services.PaymentsService;
-import com.example.fenikaCRM10.services.PaymentsStatusesListService;
+import com.example.fenikaCRM10.services.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +21,7 @@ public class PaymentsController {
     private final DealService dealService;
     private final PaymentsService paymentsService;
     private final PaymentsRepository paymentsRepository;
+    private final UserService userService;
 
     @GetMapping("/payments/{dealId}")
     public String allPayments(Model model, @PathVariable Long dealId) {
@@ -29,7 +29,9 @@ public class PaymentsController {
         model.addAttribute("allPayments", paymentsService.getPaymentsByDealId(dealId));
         model.addAttribute("listOfStatPay", PaymentsStatusesListService.getPaymentsStatusesList());
         model.addAttribute("earnedMoney", paymentsService.getCompanyProfit(dealId));
-        model.addAttribute("moneyOfManager", paymentsService.getManagerProfit(dealId));
+        User currentUser = userService.findByPrincipal(
+                (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        model.addAttribute("moneyOfManager", paymentsService.getManagerProfit(dealId, currentUser));
         model.addAttribute("currentDate", LocalDate.now());
         return "payments";
     }

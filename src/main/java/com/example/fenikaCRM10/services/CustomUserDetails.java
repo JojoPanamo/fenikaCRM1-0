@@ -13,7 +13,7 @@ public class CustomUserDetails implements UserDetails {
     private final boolean active;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(Long id, String email, String password, boolean active, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(Long id, String email, String password, boolean active, Collection<? extends GrantedAuthority> authorities, double percentage) {
         this.id = id;
         this.email = email;
         this.password = password;

@@ -55,9 +55,9 @@ public class PaymentsService {
     }
 
 
-    public Double getManagerProfit(Long dealId) {
+    public Double getManagerProfit(Long dealId, User user) {
         double companyProfit = getCompanyProfit(dealId);
-        return companyProfit * 0.25;
+        return companyProfit * user.getPercentage() / 100;
 
     }
 
@@ -113,7 +113,7 @@ public class PaymentsService {
         // Логируем прибыль компании
         log.info("Прибыль компании для пользователя {}: {}", user.getEmail(), companyProfit);
 
-        double managerProfit = companyProfit * 0.25;
+        double managerProfit = companyProfit * user.getPercentage() / 100;
 
         // Логируем прибыль менеджера
         log.info("Прибыль менеджера для пользователя {}: {}", user.getEmail(), managerProfit);
@@ -129,6 +129,30 @@ public class PaymentsService {
                 .filter(payment -> "Поступление".equals(payment.getStatusPayments())) // Фильтруем только поступления
                 .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0)) // Если сумма null, заменяем 0
                 .sum();
+    }
+    public double getTotalPaymentsForCompany() {
+        return paymentsRepository.findAll().stream()
+                .filter(payment -> "Поступление".equals(payment.getStatusPayments()))
+                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
+                .sum();
+    }
+
+    public double getCompanyProfitForCompany() {
+        double totalIncome = paymentsRepository.findAll().stream()
+                .filter(payment -> "Поступление".equals(payment.getStatusPayments()))
+                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
+                .sum();
+
+        double totalExpenses = paymentsRepository.findAll().stream()
+                .filter(payment -> "Расход".equals(payment.getStatusPayments()) || "Налог".equals(payment.getStatusPayments()))
+                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
+                .sum();
+
+        return totalIncome - totalExpenses;
+    }
+    public double getPercentage (User user){
+
+        return user.getPercentage();
     }
 }
 

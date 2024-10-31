@@ -30,7 +30,6 @@ public class DealController {
 //        return "deals";
 //    }
     @GetMapping("/deals")
-    @PreAuthorize("hasRole('ROLE_USER')")
     public String getUserDeals(
             @RequestParam(name = "statusFilter", required = false, defaultValue = "Новая заявка,В работе,Оплачен") String statusFilter,
             Model model) {
@@ -41,9 +40,18 @@ public class DealController {
         // Преобразуем строку фильтров в список статусов
         List<String> statuses = Arrays.asList(statusFilter.split(","));
 
-        // Получаем сделки, соответствующие статусам
-        List<Deal> userDeals = dealService.findDealsByStatuses(currentUser, statuses);
-        for (Deal deal : userDeals) {
+        List<Deal> deals;
+
+        // Проверка роли: если администратор, то получить все сделки
+        if (currentUser.getRoles().stream().anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"))) {
+            deals = dealService.findDealsByStatusesForAdmin(statuses); // Метод для всех сделок с фильтрацией
+        } else {
+            // Иначе — только сделки текущего пользователя
+            deals = dealService.findDealsByStatuses(currentUser, statuses);
+        }
+
+        // Заполнение данных по сделкам
+        for (Deal deal : deals) {
             deal.setCompanyProfit(paymentsService.getCompanyProfit(deal.getDealId()));
 
             // Получаем последний статус сделки
@@ -51,10 +59,12 @@ public class DealController {
             deal.setLastStatus(lastStatus);
         }
 
-        model.addAttribute("deals", userDeals);
+        model.addAttribute("deals", deals);
         model.addAttribute("selectedStatuses", statuses); // Добавляем выбранные статусы для отображения
         return "deals"; // Отображаем страницу со списком сделок
     }
+
+
 
 
     @PostMapping("/deal-create-save")

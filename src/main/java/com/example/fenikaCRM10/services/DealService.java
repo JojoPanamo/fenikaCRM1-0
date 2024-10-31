@@ -8,9 +8,11 @@ import com.example.fenikaCRM10.repositories.DealRepository;
 import com.example.fenikaCRM10.repositories.StatusesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ public class DealService {
     private final DealRepository dealRepository;
     private final StatusesRepository statusesRepository;
     private final PaymentsService paymentsService;
+    private final UserService userService;
 
     // Метод для поиска сделок по userId
     public List<Deal> findDealsByUserId(Long userId) {
@@ -117,8 +120,10 @@ public class DealService {
                 .sum();
 
         // Расчет прибыли менеджера
+        User currentUser = userService.findByPrincipal(
+                (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         double managerProfit = completedDeals.stream()
-                .mapToDouble(deal -> paymentsService.getManagerProfit(deal.getDealId()))
+                .mapToDouble(deal -> paymentsService.getManagerProfit(deal.getDealId(), currentUser))
                 .sum();
 
         // Сумма поступлений за текущий месяц
@@ -136,5 +141,20 @@ public class DealService {
                 .collect(Collectors.toList());
 
         return new StatisticsDTO(companyProfit, managerProfit, totalPayments, completedDealNames, pendingDealNames);
+    }
+    public List<Deal> findDealsByStatusesForAdmin(List<String> statuses) {
+        return dealRepository.findAllDealsByStatuses(statuses);
+    }
+    public int getTotalCompletedDealsCount() {
+        return dealRepository.countDealsByLastStatus("Завершен");
+    }
+
+    public int getTotalRefusedDealsCount() {
+        return dealRepository.countDealsByLastStatus("Отказ");
+    }
+
+    public int getTotalInProgressOrPaidDealsCount() {
+        List<String> statuses = Arrays.asList("В работе", "Оплачен", "Новая заявка");
+        return dealRepository.countDealsByLastStatuses(statuses);
     }
 }

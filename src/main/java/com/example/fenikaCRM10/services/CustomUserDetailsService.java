@@ -4,10 +4,15 @@ import com.example.fenikaCRM10.models.User;
 import com.example.fenikaCRM10.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,13 +34,15 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         log.info("User found: {}", email);
 
+
         // Возвращаем объект CustomUserDetails, который реализует интерфейс UserDetails
         return new CustomUserDetails(
                 user.getUserId(),
                 user.getEmail(),
                 user.getPassword(),
                 user.isActive(),
-                user.getRoles()
+                user.getRoles(),
+                user.getPercentage()
         );
     }
 }

@@ -31,6 +31,26 @@ public interface DealRepository extends JpaRepository<Deal, Long> {
     @Query("SELECT d FROM Deal d WHERE MONTH(d.creationDate) = :month AND YEAR(d.creationDate) = :year")
     List<Deal> findByMonthAndYear(@Param("month") int month, @Param("year") int year);
 
+    @Query("SELECT d FROM Deal d WHERE (SELECT s.statusChoose FROM Statuses s WHERE s.dealId = d.dealId ORDER BY s.statusId DESC LIMIT 1) IN :statuses")
+    List<Deal> findAllDealsByStatuses(@Param("statuses") List<String> statuses);
+
+    @Query("SELECT COUNT(d) FROM Deal d WHERE d.status = :status AND d.dealId IN " +
+            "(SELECT s.dealId FROM Statuses s WHERE s.statusChoose = :status " +
+            "AND s.statusId = (SELECT MAX(sInner.statusId) FROM Statuses sInner WHERE sInner.dealId = s.dealId))")
+    int countDealsByLastStatus(@Param("status") String status);
+
+
+    @Query("SELECT COUNT(d) FROM Deal d WHERE d.dealId IN " +
+            "(SELECT s.dealId FROM Statuses s WHERE s.statusChoose IN :statuses " +
+            "AND s.statusId = (SELECT MAX(sInner.statusId) FROM Statuses sInner WHERE sInner.dealId = s.dealId))")
+    int countDealsByLastStatuses(@Param("statuses") List<String> statuses);
+
+
+
+//    int countByStatus(String status);
+//
+//    int countByStatusIn(List<String> statuses);
+
 
 
 }

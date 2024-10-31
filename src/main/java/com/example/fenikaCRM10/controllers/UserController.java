@@ -3,6 +3,7 @@ package com.example.fenikaCRM10.controllers;
 import com.example.fenikaCRM10.models.User;
 import com.example.fenikaCRM10.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +19,12 @@ public class UserController {
     public String login(){
         return "login";
     }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/registration")
     public String registration(){
         return "registration";
     }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/registration")
     public String createUser(@ModelAttribute User user, Model model) {
         if (!userService.createUser(user)) {
