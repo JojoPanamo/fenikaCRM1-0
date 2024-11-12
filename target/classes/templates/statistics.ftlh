@@ -31,6 +31,9 @@
             align-items: center;
             padding-top: 20px;
             box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
         .sidebar a {
             display: flex;
@@ -47,6 +50,53 @@
             margin-bottom: 5px;
             filter: brightness(0) invert(1);
         }
+        /* Filter Container */
+        .stats-filter {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 250px;
+            height: 34px;
+            margin: 20px auto;
+            gap: 30px;
+        }
+
+        /* Button Style */
+        .filter-options {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 4px 35px;
+            gap: 30px;
+            width: 392px;
+            height: 34px;
+            border: 1px solid #20252B;
+            border-radius: 30px;
+        }
+
+        .filter-button {
+            font-family: 'Manrope', sans-serif;
+            font-style: normal;
+            font-weight: 300;
+            font-size: 14px;
+            color: #20252B;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 10px;
+            transition: font-weight 0.2s;
+        }
+
+        .filter-button.active {
+            font-weight: 600;
+        }
+
+        .filter-button:hover {
+            font-weight: 500;
+        }
+
 
         /* Content Area */
         .content {
@@ -157,6 +207,7 @@
         <img src="/icons/exit.svg" alt="Выход">
         <p>Выход</p>
     </a>
+    <#if isAdmin>
     <a href="/registration">
         <img src="/icons/reg.svg" alt="новый пользователь">
         <p>+ Юзер</p>
@@ -165,6 +216,7 @@
         <img src="/icons/sett.svg" alt="Настройки пользователя">
         <p>Настр</p>
     </a>
+    </#if>
 </div>
 
 <!-- Content Area -->
@@ -173,6 +225,13 @@
         <!-- Общая статистика по компании -->
         <div class="stats-wrapper">
             <h2>Общая статистика компании</h2>
+            <div class="stats-filter">
+                <div class="filter-options">
+                    <button class="filter-button" onclick="showMonthlyStatistics()">Месяц</button>
+                    <button class="filter-button" onclick="showYearlyStatistics()">Год</button>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="stat-block">
                     <div class="number">${completedDealsCount!0}</div>
@@ -185,6 +244,29 @@
                 <div class="stat-block">
                     <div class="number">${refusedDealsCount!0}</div>
                     <p>Отказанные сделки</p>
+                </div>
+            </div>
+            <div class="stats-wrapper">
+                <h2>Статистика по источникам клиентов</h2>
+
+                <!-- Первый ряд -->
+                <div class="row source-stats">
+                    <#list dealsCountBySource?keys[0..2] as source>
+                        <div class="stat-block">
+                            <div class="number">${dealsCountBySource[source]!0}</div>
+                            <p>${source}</p>
+                        </div>
+                    </#list>
+                </div>
+
+                <!-- Второй ряд -->
+                <div class="row source-stats">
+                    <#list dealsCountBySource?keys[3..5] as source>
+                        <div class="stat-block">
+                            <div class="number">${dealsCountBySource[source]!0}</div>
+                            <p>${source}</p>
+                        </div>
+                    </#list>
                 </div>
             </div>
 

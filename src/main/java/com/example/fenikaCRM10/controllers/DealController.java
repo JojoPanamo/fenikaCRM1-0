@@ -5,7 +5,6 @@ import com.example.fenikaCRM10.models.User;
 import com.example.fenikaCRM10.repositories.DealRepository;
 import com.example.fenikaCRM10.services.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -129,7 +128,8 @@ public class DealController {
     }
     @GetMapping("/deal-create")
     public String dealCreatePAge(Model model) {
-        model.addAttribute("authors", UserServiceList.getAuthors());
+        model.addAttribute("whereFromOptions", DealServiceList.getAuthors());
+        model.addAttribute("authors", DealServiceList.getAuthors());
 //        model.addAttribute("deal", dealService.listDeals());
         return "deal-create";
     }

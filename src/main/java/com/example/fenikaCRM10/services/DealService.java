@@ -12,9 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.time.YearMonth;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +41,9 @@ public class DealService {
 
     // Метод для сохранения сделки
     public void saveDeal(Deal deal) {
+        if (deal.getCreationDate() == null) {
+            deal.setCreationDate(LocalDate.now());
+        }
         dealRepository.save(deal);  // Сохранение сделки в базу данных
         Statuses newStatus = new Statuses();
         newStatus.setDealId(deal.getDealId());  // Присваиваем ID сделки
@@ -72,7 +74,8 @@ public class DealService {
     }
     // Метод для одного статуса
     public int countDealsByLastStatusAndUser(User user, String status) {
-        return countDealsByStatusesAndUser(user, Collections.singletonList(status));
+        LocalDate now = LocalDate.now();
+        return dealRepository.countDealsByLastStatusAndUserForMonth(user, status, now.getMonthValue(), now.getYear());
     }
 
     // Метод для списка статусов
@@ -156,5 +159,33 @@ public class DealService {
     public int getTotalInProgressOrPaidDealsCount() {
         List<String> statuses = Arrays.asList("В работе", "Оплачен", "Новая заявка");
         return dealRepository.countDealsByLastStatuses(statuses);
+    }
+    public Map<String, Integer> getDealsCountBySource() {
+        // Получаем все возможные источники из DealServiceList
+        List<String> sources = DealServiceList.getAuthors();
+        Map<String, Integer> dealsCountBySource = new HashMap<>();
+
+        // Подсчитываем количество сделок для каждого источника
+        for (String source : sources) {
+            int count = dealRepository.countByWhereFrom(source);
+            dealsCountBySource.put(source, count);
+        }
+
+        return dealsCountBySource;
+    }
+    public Map<String, Integer> getDealsCountBySourceForCurrentMonth() {
+        List<String> sources = DealServiceList.getAuthors();
+        Map<String, Integer> dealsCountBySource = new HashMap<>();
+
+        // Получаем текущий месяц и год
+        YearMonth currentMonth = YearMonth.now();
+
+        // Подсчитываем количество сделок для каждого источника, созданных в текущем месяце
+        for (String source : sources) {
+            int count = dealRepository.countByWhereFromAndMonthAndYear(source, currentMonth.getMonthValue(), currentMonth.getYear());
+            dealsCountBySource.put(source, count);
+        }
+
+        return dealsCountBySource;
     }
 }

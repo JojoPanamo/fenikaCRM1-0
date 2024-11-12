@@ -1,19 +1,27 @@
 package com.example.fenikaCRM10.services;
 
+import com.example.fenikaCRM10.models.Deal;
 import com.example.fenikaCRM10.models.Payments;
+import com.example.fenikaCRM10.models.Statuses;
 import com.example.fenikaCRM10.models.User;
+import com.example.fenikaCRM10.repositories.DealRepository;
 import com.example.fenikaCRM10.repositories.PaymentsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentsService {
     private final PaymentsRepository paymentsRepository;
+    private final DealRepository dealRepository;
 
     public void savePayment(Payments payment, Long dealId) {
         payment.setDealId(dealId);
@@ -25,40 +33,36 @@ public class PaymentsService {
         return paymentsRepository.findAllByDealId(dealId);
     }
 
-    public Double getCompanyProfit(Long dealId) {
-        List<Payments> payments = paymentsRepository.findAllByDealId(dealId);
-        double companyProfit = 0.0;
 
-        log.info("Полученные платежи для сделки {}: {}", dealId, payments);
+    private boolean isDealCompletedInCurrentMonth(Deal deal) {
+        Optional<Statuses> latestStatus = dealRepository.findLatestStatusByDealId(deal.getDealId());
+        if (latestStatus.isPresent()) {
+            Statuses status = latestStatus.get();
+            YearMonth currentMonth = YearMonth.now();
 
-        for (Payments payment : payments) {
-            String status = payment.getStatusPayments();
-            Double sum = payment.getSum();
+            // Создаем DateTimeFormatter для формата dd.MM.yyyy HH:mm:ss
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
-            if (sum == null) {
-                log.warn("Платеж со статусом {} имеет нулевую сумму", status);
-                continue;
-            }
+            // Преобразуем строку в LocalDateTime и затем в YearMonth
+            LocalDateTime dateTime = LocalDateTime.parse(status.getCurrentDate(), formatter);
+            YearMonth statusMonth = YearMonth.from(dateTime);
 
-            log.info("Обработка платежа: Статус: {}, Сумма: {}", status, sum);
-
-            if ("Поступление".equals(status)) {
-                companyProfit += sum;
-            } else if ("Расход".equals(status) || "Налог".equals(status)) {
-                companyProfit -= sum;
-            }
+            return "Завершен".equals(status.getStatusChoose()) && currentMonth.equals(statusMonth);
         }
-
-        log.info("Итоговая прибыль компании для сделки {}: {}", dealId, companyProfit);
-
-        return companyProfit;
+        return false;
     }
 
+    public Double getCompanyProfit(Long dealId) {
+        Deal deal = dealRepository.findById(dealId).orElse(null);
+        if (deal == null || !isDealCompletedInCurrentMonth(deal)) {
+            return 0.0;
+        }
+        return calculateDealCompanyProfit(deal);
+    }
 
     public Double getManagerProfit(Long dealId, User user) {
         double companyProfit = getCompanyProfit(dealId);
         return companyProfit * user.getPercentage() / 100;
-
     }
 
     public void deletePaymentById(Long paymentId) {
@@ -67,92 +71,94 @@ public class PaymentsService {
 
     public Long getDealIdByPaymentId(Long paymentId) {
         Payments payment = paymentsRepository.findById(paymentId).orElse(null);
-        if (payment != null) {
-            return payment.getDealId();
-        } else {
-            return null;
-        }
+        return payment != null ? payment.getDealId() : null;
     }
 
     public double getTotalPaymentsForUser(User user) {
-        List<Payments> payments = paymentsRepository.findByUser(user);
-        return payments.stream()
-                .filter(payment -> "Поступление".equals(payment.getStatusPayments())) // Фильтруем только поступления
-                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
+        List<Deal> deals = dealRepository.findByUser(user);
+        return deals.stream()
+                .filter(this::isDealCompletedInCurrentMonth)
+                .mapToDouble(this::calculateTotalPaymentsForDeal)
                 .sum();
     }
 
     public double getCompanyProfitForUser(User user) {
-        // Получаем все платежи пользователя
-        List<Payments> payments = paymentsRepository.findByUser(user);
-
-        // Суммируем все поступления
-        double totalIncome = payments.stream()
-                .filter(payment -> "Поступление".equals(payment.getStatusPayments())) // Фильтруем только поступления
-                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0)) // Если сумма null, заменяем 0
+        List<Deal> deals = dealRepository.findByUser(user);
+        return deals.stream()
+                .filter(this::isDealCompletedInCurrentMonth)
+                .mapToDouble(this::calculateDealCompanyProfit)
                 .sum();
-
-        // Суммируем все расходы
-        double totalExpenses = payments.stream()
-                .filter(payment -> "Расход".equals(payment.getStatusPayments())) // Фильтруем только расходы
-                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0)) // Если сумма null, заменяем 0
-                .sum();
-
-        // Логируем суммы для проверки
-        log.info("Общая сумма поступлений: {}", totalIncome);
-        log.info("Общая сумма расходов: {}", totalExpenses);
-
-        // Возвращаем прибыль (поступления - расходы)
-        return totalIncome - totalExpenses;
     }
-
 
     public double getManagerProfitForUser(User user) {
         double companyProfit = getCompanyProfitForUser(user);
-
-        // Логируем прибыль компании
-        log.info("Прибыль компании для пользователя {}: {}", user.getEmail(), companyProfit);
-
-        double managerProfit = companyProfit * user.getPercentage() / 100;
-
-        // Логируем прибыль менеджера
-        log.info("Прибыль менеджера для пользователя {}: {}", user.getEmail(), managerProfit);
-
-        return managerProfit;
+        return companyProfit * user.getPercentage() / 100;
     }
+
     public double getTotalPayments(Long dealId) {
-        // Получаем все платежи по конкретной сделке
-        List<Payments> payments = paymentsRepository.findAllByDealId(dealId);
-
-        // Суммируем все поступления по сделке
-        return payments.stream()
-                .filter(payment -> "Поступление".equals(payment.getStatusPayments())) // Фильтруем только поступления
-                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0)) // Если сумма null, заменяем 0
-                .sum();
+        Deal deal = dealRepository.findById(dealId).orElse(null);
+        if (deal == null || !isDealCompletedInCurrentMonth(deal)) {
+            return 0.0;
+        }
+        return calculateTotalPaymentsForDeal(deal);
     }
+
     public double getTotalPaymentsForCompany() {
         return paymentsRepository.findAll().stream()
-                .filter(payment -> "Поступление".equals(payment.getStatusPayments()))
+                .filter(payment -> {
+                    Deal deal = dealRepository.findById(payment.getDealId()).orElse(null);
+                    return deal != null && isDealCompletedInCurrentMonth(deal) && "Поступление".equals(payment.getStatusPayments());
+                })
                 .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
                 .sum();
     }
 
     public double getCompanyProfitForCompany() {
         double totalIncome = paymentsRepository.findAll().stream()
-                .filter(payment -> "Поступление".equals(payment.getStatusPayments()))
+                .filter(payment -> {
+                    Deal deal = dealRepository.findById(payment.getDealId()).orElse(null);
+                    return deal != null && isDealCompletedInCurrentMonth(deal) && "Поступление".equals(payment.getStatusPayments());
+                })
                 .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
                 .sum();
 
         double totalExpenses = paymentsRepository.findAll().stream()
+                .filter(payment -> {
+                    Deal deal = dealRepository.findById(payment.getDealId()).orElse(null);
+                    return deal != null && isDealCompletedInCurrentMonth(deal) &&
+                            ("Расход".equals(payment.getStatusPayments()) || "Налог".equals(payment.getStatusPayments()));
+                })
+                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
+                .sum();
+
+        return totalIncome - totalExpenses;
+    }
+
+    private double calculateDealCompanyProfit(Deal deal) {
+        List<Payments> payments = paymentsRepository.findAllByDealId(deal.getDealId());
+
+        double totalIncome = payments.stream()
+                .filter(payment -> "Поступление".equals(payment.getStatusPayments()))
+                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
+                .sum();
+
+        double totalExpenses = payments.stream()
                 .filter(payment -> "Расход".equals(payment.getStatusPayments()) || "Налог".equals(payment.getStatusPayments()))
                 .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
                 .sum();
 
         return totalIncome - totalExpenses;
     }
+
+    private double calculateTotalPaymentsForDeal(Deal deal) {
+        List<Payments> payments = paymentsRepository.findAllByDealId(deal.getDealId());
+        return payments.stream()
+                .filter(payment -> "Поступление".equals(payment.getStatusPayments()))
+                .mapToDouble(payment -> Optional.ofNullable(payment.getSum()).orElse(0.0))
+                .sum();
+    }
     public double getPercentage (User user){
 
         return user.getPercentage();
     }
 }
-
