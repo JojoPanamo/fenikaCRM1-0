@@ -1,10 +1,8 @@
 package com.example.fenikaCRM10.services;
 
-import com.example.fenikaCRM10.models.Deal;
-import com.example.fenikaCRM10.models.StatisticsDTO;
-import com.example.fenikaCRM10.models.Statuses;
-import com.example.fenikaCRM10.models.User;
+import com.example.fenikaCRM10.models.*;
 import com.example.fenikaCRM10.repositories.DealRepository;
+import com.example.fenikaCRM10.repositories.PaymentsRepository;
 import com.example.fenikaCRM10.repositories.StatusesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +22,7 @@ public class DealService {
     private final StatusesRepository statusesRepository;
     private final PaymentsService paymentsService;
     private final UserService userService;
+    private final PaymentsRepository paymentsRepository;
 
     // Метод для поиска сделок по userId
     public List<Deal> findDealsByUserId(Long userId) {
@@ -149,11 +148,13 @@ public class DealService {
         return dealRepository.findAllDealsByStatuses(statuses);
     }
     public int getTotalCompletedDealsCount() {
-        return dealRepository.countDealsByLastStatus("Завершен");
+        LocalDate now = LocalDate.now();
+        return dealRepository.countDealsByLastStatus("Завершен", now.getMonthValue(), now.getYear());
     }
 
     public int getTotalRefusedDealsCount() {
-        return dealRepository.countDealsByLastStatus("Отказ");
+        LocalDate now = LocalDate.now();
+        return dealRepository.countDealsByLastStatus("Отказ", now.getMonthValue(), now.getYear());
     }
 
     public int getTotalInProgressOrPaidDealsCount() {
@@ -187,5 +188,18 @@ public class DealService {
         }
 
         return dealsCountBySource;
+    }
+    public List<Deal> getAllDealsWithTotalPayments() {
+        List<Deal> deals = dealRepository.findAll();
+
+        for (Deal deal : deals) {
+            // Расчет суммы поступлений для каждой сделки
+            double totalPayments = paymentsRepository.findByDealId(deal.getDealId())
+                    .stream()
+                    .mapToDouble(Payments::getSum)
+                    .sum();
+            deal.setTotalPayments(String.valueOf(totalPayments));
+        }
+        return deals;
     }
 }

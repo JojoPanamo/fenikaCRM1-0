@@ -44,4 +44,6 @@ public class Deal {
     private LocalDate creationDate;
     @Column(name = "whereFrom")
     private String whereFrom;
+    @Transient
+    private String totalPayments;
 }

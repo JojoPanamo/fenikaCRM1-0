@@ -1,59 +1,253 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>CRM Fenika - Список сделок</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список сделок</title>
+    <style>
+        /* Основные стили */
+        body {
+            display: flex;
+            flex-direction: row;
+            margin: 0;
+            font-family: 'Manrope', sans-serif;
+            background-color: #F3F3F4;
+            color: #20252B;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 70px;
+            height: 100vh;
+            background-color: #20252B;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #C8C8C8;
+            font-size: 8px;
+        }
+
+        .sidebar img {
+            width: 40px;
+            height: 25px;
+            margin-bottom: 5px;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Верхнее меню */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: #F6F6F6;
+            border-bottom: 1px solid #D1D1D3;
+            width: calc(100% - 70px);
+            position: fixed;
+            top: 0;
+            left: 70px;
+            height: 88px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .filter-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #F6F6F6;
+            padding: 12px 16px;
+            border-radius: 5px;
+        }
+
+        .filter-form select {
+            font-size: 14px;
+            padding: 8px;
+            border: none;
+            background-color: #FFFFFF;
+        }
+
+        .top-bar .create-deal-btn {
+            background: #FEB155;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #20252B;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+            text-decoration: none;
+        }
+
+        /* Контент */
+        .content {
+            margin-left: 90px;
+            padding-top: 108px;
+            width: calc(100% - 90px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Таблица сделок */
+        .deals-table {
+            width: 100%;
+            max-width: 1800px;
+            border-collapse: collapse;
+            background-color: #FFFFFF;
+            border-radius: 0px;
+            overflow: hidden;
+            margin-top: 20px;
+            border: 1px solid #E0E0E0;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .deals-table th, .deals-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #E0E0E0;
+            font-size: 12px;
+        }
+
+        .deals-table th {
+            background-color: #FFFFFF;
+            font-weight: 700;
+            color: #20252B;
+        }
+
+        .deals-table td {
+            font-weight: 400;
+            color: #20252B;
+        }
+
+        /* Стили для строк-ссылок */
+        .deal-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .deal-row:hover {
+            background-color: #E0E0E0;
+        }
+
+        /* Статусы */
+        .status-new { background-color: #FDFABD; }
+        .status-in-progress { background-color: #C3EDFF; }
+        .status-paid { background-color: #D8FFC6; }
+        .status-completed { background-color: #A3E48C; }
+        .status-declined { background-color: #FFADAD; }
+
+        .status-cell {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 400;
+            text-align: center;
+            color: #20252B;
+        }
+    </style>
 </head>
 <body>
-<h1>CRM Феникс</h1>
-<h4>Список сделок</h4>
 
-<!-- Форма для выбора статусов -->
-<form action="/deals" method="get">
-    <label for="statusFilter">Фильтровать по статусу:</label>
-    <select name="statusFilter" id="statusFilter">
-        <option value="Новая заявка,В работе,Оплачен" <#if selectedStatuses?seq_contains("Новая заявка") && selectedStatuses?seq_contains("В работе") && selectedStatuses?seq_contains("Оплачен")>selected</#if>>Новые, В работе, Оплаченные</option>
-        <option value="В работе" <#if selectedStatuses?seq_contains("В работе") && selectedStatuses?size == 1>selected</#if>>В работе</option>
-        <option value="Оплачен" <#if selectedStatuses?seq_contains("Оплачен") && selectedStatuses?size == 1>selected</#if>>Оплачен</option>
-        <option value="Завершен" <#if selectedStatuses?seq_contains("Завершен") && selectedStatuses?size == 1>selected</#if>>Завершен</option>
-        <option value="Новая заявка" <#if selectedStatuses?seq_contains("Новая заявка") && selectedStatuses?size == 1>selected</#if>>Новая заявка</option>
-        <option value="Отказ" <#if selectedStatuses?seq_contains("Отказ") && selectedStatuses?size == 1>selected</#if>>Отказ</option>
+<!-- Sidebar -->
+<div class="sidebar">
+    <a href="/statistics">
+        <img src="/icons/home.svg" alt="Статистика">
+        <p>Статистика</p>
+    </a>
+    <a href="/deals">
+        <img src="/icons/Vector.svg" alt="Сделки">
+        <p>Сделки</p>
+    </a>
+    <#if isAdmin>
+        <a href="/registration">
+            <img src="/icons/reg.svg" alt="новый пользователь">
+            <p>+ Юзер</p>
+        </a>
+        <a href="/user-settings">
+            <img src="/icons/sett.svg" alt="Настройки пользователя">
+            <p>Настр</p>
+        </a>
+    </#if>
+    <a href="/logout">
+        <img src="/icons/exit.svg" alt="Выход">
+        <p>Выход</p>
+    </a>
+</div>
 
-    </select>
-    <input type="submit" value="Применить фильтр">
-</form>
+<!-- Верхнее меню -->
+<div class="top-bar">
+    <form class="filter-form" action="/deals" method="get">
+        <label for="statusFilter">Фильтровать по статусу:</label>
+        <select name="statusFilter" id="statusFilter" onchange="this.form.submit()">
+            <option value="Новая заявка,В работе,Оплачен">Новые, В работе, Оплаченные</option>
+            <option value="В работе">В работе</option>
+            <option value="Оплачен">Оплачен</option>
+            <option value="Завершен">Завершен</option>
+            <option value="Новая заявка">Новая заявка</option>
+            <option value="Отказ">Отказ</option>
+        </select>
+    </form>
+    <a href="/deal-create" class="create-deal-btn">Создать новую сделку</a>
+</div>
 
-<!-- Список сделок -->
-<#if deals?? && deals?size != 0>
-    <#list deals as deal>
-        <div>
-            <p>
-                ID сделки: ${deal.dealId} <br>
-                Наименование: ${deal.name} <br>
-                Что требуется: ${deal.whatNeed} <br>
-                Автор: ${deal.user.name} <br>
-                Статус: <#if deal.lastStatus??>
-                    ${deal.lastStatus}
-                <#else>
-                    Статус не установлен
-                </#if> <br>
-<#--                Прибыль компании: ${deal.companyProfit} <br>-->
-                <a href="/deal-info/${deal.dealId}">Подробнее</a>
-            </p>
-        </div>
-    </#list>
-<#else>
-    <h3>Пока нет сделок</h3>
-</#if>
+<!-- Content Area -->
+<div class="content">
+    <h4>Список сделок</h4>
 
-<hr>
-<form action="/deal-create" method="get">
-    <input type="submit" value="Создать новую сделку"/>
-</form>
-<form action="/logout" method="post">
-    <input type="submit" value="Выйти"/>
-</form>
-<form action="/statistics" method="get">
-    <input type="submit" value="Статистика"/>
-</form>
+    <!-- Таблица сделок -->
+    <table class="deals-table">
+        <thead>
+        <tr>
+            <th class="id-column">ID</th>
+            <th class="date-column">Дата создания</th>
+            <th class="what-need-column">Что запросили</th>
+            <th class="client-column">Клиент</th>
+            <th class="status-column">Статус</th>
+            <th class="sum-column">Сумма</th>
+            <#if isAdmin>
+                <th class="manager-column">Ответственный</th>
+            </#if>
+        </tr>
+        </thead>
+        <tbody>
+        <#if deals?? && deals?size != 0>
+            <#list deals as deal>
+                <tr class="deal-row" onclick="window.location.href='/deal-info/${deal.dealId}'">
+                    <td>${deal.dealId}</td>
+                    <td>${deal.creationDate}</td>
+                    <td>${deal.whatNeed}</td>
+                    <td>${deal.name}</td>
+                    <td>
+                        <span class="status-cell <#if deal.lastStatus == 'Новая заявка'>status-new<#elseif deal.lastStatus == 'В работе'>status-in-progress<#elseif deal.lastStatus == 'Оплачен'>status-paid<#elseif deal.lastStatus == 'Завершен'>status-completed<#elseif deal.lastStatus == 'Отказ'>status-declined</#if>">
+                            ${deal.lastStatus! 'Статус не установлен'}
+                        </span>
+                    </td>
+                    <td>${deal.totalPayments!0.0}</td>
+                    <#if isAdmin>
+                        <td>${deal.user.name}</td>
+                    </#if>
+                </tr>
+            </#list>
+        <#else>
+            <tr>
+                <td colspan="7">Пока нет сделок</td>
+            </tr>
+        </#if>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>

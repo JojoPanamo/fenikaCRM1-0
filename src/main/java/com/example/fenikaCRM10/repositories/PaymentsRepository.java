@@ -9,5 +9,6 @@ import java.util.List;
 public interface PaymentsRepository extends JpaRepository<Payments, Long> {
     List<Payments> findAllByDealId(Long dealId);
     List<Payments> findByUser(User user);
+    List<Payments> findByDealId(Long dealId);
 
 }

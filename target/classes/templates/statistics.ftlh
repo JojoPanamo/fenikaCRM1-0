@@ -199,14 +199,15 @@
 <body>
 <!-- Sidebar -->
 <div class="sidebar">
+    <a href="/statistics">
+        <img src="/icons/home.svg" alt="Статистика">
+        <p>Статистика</p>
+    </a>
     <a href="/deals">
         <img src="/icons/Vector.svg" alt="Сделки">
         <p>Сделки</p>
     </a>
-    <a href="/logout">
-        <img src="/icons/exit.svg" alt="Выход">
-        <p>Выход</p>
-    </a>
+
     <#if isAdmin>
     <a href="/registration">
         <img src="/icons/reg.svg" alt="новый пользователь">
@@ -217,6 +218,10 @@
         <p>Настр</p>
     </a>
     </#if>
+    <a href="/logout">
+        <img src="/icons/exit.svg" alt="Выход">
+        <p>Выход</p>
+    </a>
 </div>
 
 <!-- Content Area -->
@@ -225,12 +230,12 @@
         <!-- Общая статистика по компании -->
         <div class="stats-wrapper">
             <h2>Общая статистика компании</h2>
-            <div class="stats-filter">
-                <div class="filter-options">
-                    <button class="filter-button" onclick="showMonthlyStatistics()">Месяц</button>
-                    <button class="filter-button" onclick="showYearlyStatistics()">Год</button>
-                </div>
-            </div>
+<#--            <div class="stats-filter">-->
+<#--                <div class="filter-options">-->
+<#--                    <button class="filter-button" onclick="showMonthlyStatistics()">Месяц</button>-->
+<#--                    <button class="filter-button" onclick="showYearlyStatistics()">Год</button>-->
+<#--                </div>-->
+<#--            </div>-->
 
             <div class="row">
                 <div class="stat-block">

@@ -44,9 +44,11 @@ public class DealController {
         // Проверка роли: если администратор, то получить все сделки
         if (currentUser.getRoles().stream().anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"))) {
             deals = dealService.findDealsByStatusesForAdmin(statuses); // Метод для всех сделок с фильтрацией
+            dealService.getAllDealsWithTotalPayments();
         } else {
             // Иначе — только сделки текущего пользователя
             deals = dealService.findDealsByStatuses(currentUser, statuses);
+            dealService.getAllDealsWithTotalPayments();
         }
 
         // Заполнение данных по сделкам
@@ -57,9 +59,17 @@ public class DealController {
             String lastStatus = statusesService.getLastStatusForDeal(deal.getDealId());
             deal.setLastStatus(lastStatus);
         }
+        currentUser = userService.findByPrincipal(
+                (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        String userName = currentUser.getName();
+
+        // Проверка, является ли пользователь администратором
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
 
         model.addAttribute("deals", deals);
         model.addAttribute("selectedStatuses", statuses); // Добавляем выбранные статусы для отображения
+        model.addAttribute("isAdmin", isAdmin);
         return "deals"; // Отображаем страницу со списком сделок
     }
 
