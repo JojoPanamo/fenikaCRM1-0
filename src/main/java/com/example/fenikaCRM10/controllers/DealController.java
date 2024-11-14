@@ -31,7 +31,7 @@ public class DealController {
     @GetMapping("/deals")
     public String getUserDeals(
             @RequestParam(name = "statusFilter", required = false, defaultValue = "Новая заявка,В работе,Оплачен") String statusFilter,
-            Model model) {
+            @RequestParam(name = "userId", required = false) Long userId, Model model) {
         // Получаем текущего пользователя
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userService.findById(userDetails.getId());
@@ -66,6 +66,15 @@ public class DealController {
         // Проверка, является ли пользователь администратором
         boolean isAdmin = currentUser.getRoles().stream()
                 .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+        // Получение списка сделок с учетом фильтра по пользователю
+        deals = dealService.findDealsByUserId(userId);
+        model.addAttribute("selectedUserId", userId);
+
+        // Добавляем всех пользователей для отображения в фильтре
+        model.addAttribute("users", userService.findAll());
+
+        // Добавляем список сделок и ID выбранного пользователя
+        model.addAttribute("selectedUserId", userId);
 
         model.addAttribute("deals", deals);
         model.addAttribute("selectedStatuses", statuses); // Добавляем выбранные статусы для отображения
@@ -150,5 +159,9 @@ public class DealController {
     @GetMapping ("/deal-create/back")
     public String onBackPressed1() {
         return "redirect:/";
+    }
+
+    public List<Deal> findDealsByUser(Long userId) {
+        return dealRepository.findByUser_UserId(userId);
     }
 }

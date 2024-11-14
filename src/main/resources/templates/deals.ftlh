@@ -250,4 +250,12 @@
     </table>
 </div>
 </body>
+<#--<br>-->
+<#--<label for="userId">Фильтр по пользователю:</label>-->
+<#--<select name="userId" id="userId" onchange="this.form.submit()">-->
+<#--    <option value="">Все пользователи</option>-->
+<#--    <#list users as user>-->
+<#--        <option value="${user.userId}" <#if selectedUserId?? && user.userId == selectedUserId>selected</#if>>${user.name}</option>-->
+<#--    </#list>-->
+<#--</select>-->
 </html>

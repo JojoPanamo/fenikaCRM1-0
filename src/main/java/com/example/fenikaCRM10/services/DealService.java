@@ -24,10 +24,6 @@ public class DealService {
     private final UserService userService;
     private final PaymentsRepository paymentsRepository;
 
-    // Метод для поиска сделок по userId
-    public List<Deal> findDealsByUserId(Long userId) {
-        return dealRepository.findByUser_UserId(userId);  // Поиск сделок по ID пользователя
-    }
 
     // Метод для поиска сделок по имени
     public List<Deal> listDeals(String name) {
@@ -201,5 +197,11 @@ public class DealService {
             deal.setTotalPayments(String.valueOf(totalPayments));
         }
         return deals;
+    }
+    public List<Deal> findDealsByUserId(Long userId) {
+        if (userId == null) {
+            return dealRepository.findAll();
+        }
+        return dealRepository.findByUser_UserId(userId);
     }
 }
