@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -135,15 +136,31 @@ public class DealController {
 
     @GetMapping("deal-info/{dealId}")
     public String dealInfo(@PathVariable Long dealId, Model model) {
+        // Получение текущего пользователя
         CustomUserDetails userDetailsInfo = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userService.findById(userDetailsInfo.getId());
-        List<Deal> userDeals = dealService.findByUser(currentUser);
-        for (Deal deal : userDeals) {
-            deal.setCompanyProfit(paymentsService.getCompanyProfit(deal.getDealId()));
-        }
-        model.addAttribute("deal", dealService.getDealById(dealId));
+
+        // Проверка роли администратора
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+
+        // Получение данных о сделке
+        Deal deal = dealService.getDealById(dealId);
+
+        // Получение последнего статуса
+        String lastStatus = statusesService.getLastStatusForDeal(dealId);
+        deal.setLastStatus(lastStatus != null ? lastStatus : "Статус не установлен");
+
+        // Подсчет прибыли компании
+        deal.setCompanyProfit(paymentsService.getCompanyProfit(dealId));
+
+        // Добавление данных в модель
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("deal", deal);
+
         return "deal-info";
     }
+
     @GetMapping("/deal-create")
     public String dealCreatePAge(Model model) {
         model.addAttribute("whereFromOptions", DealServiceList.getAuthors());

@@ -107,11 +107,12 @@
             max-width: 1800px;
             border-collapse: collapse;
             background-color: #FFFFFF;
-            border-radius: 0px;
+            border-radius: 10px;
             overflow: hidden;
             margin-top: 20px;
             border: 1px solid #E0E0E0;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+
         }
 
         .deals-table th, .deals-table td {
@@ -174,11 +175,11 @@
     <#if isAdmin>
         <a href="/registration">
             <img src="/icons/reg.svg" alt="новый пользователь">
-            <p>+ Юзер</p>
+            <p>Добавить<br>менеджера</p>
         </a>
         <a href="/user-settings">
             <img src="/icons/sett.svg" alt="Настройки пользователя">
-            <p>Настр</p>
+            <p>Настройки<br>процентов</p>
         </a>
     </#if>
     <a href="/logout">

@@ -42,9 +42,11 @@ public class UserStatisticsController {
             int completedDealsCount = dealService.getTotalCompletedDealsCount();
             int inProgressOrPaidDealsCount = dealService.getTotalInProgressOrPaidDealsCount();
             int refusedDealsCount = dealService.getTotalRefusedDealsCount();
+            int totalDealsCount = refusedDealsCount + completedDealsCount + inProgressOrPaidDealsCount;
             double totalPayments = paymentsService.getTotalPaymentsForCompany();
             double companyProfit = paymentsService.getCompanyProfitForCompany();
 
+            model.addAttribute("totalDealsCount", totalDealsCount);
             model.addAttribute("completedDealsCount", completedDealsCount);
             model.addAttribute("inProgressOrPaidDealsCount", inProgressOrPaidDealsCount);
             model.addAttribute("refusedDealsCount", refusedDealsCount);
