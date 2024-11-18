@@ -68,6 +68,8 @@ public interface DealRepository extends JpaRepository<Deal, Long> {
 
 
 
+
+
 //    int countByStatus(String status);
 //
 //    int countByStatusIn(List<String> statuses);

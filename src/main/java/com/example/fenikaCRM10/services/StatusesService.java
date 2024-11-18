@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,15 +25,19 @@ public class StatusesService {
     public List<Statuses> getStatusesByDealId(Long dealId) {
         return statusesRepository.findAllByDealId(dealId);
     }
+//    public String getLastStatusForDeal(Long dealId) {
+//        // Получаем последний статус по ID сделки, сортируя по дате или ID
+//        Statuses lastStatus = statusesRepository.findTopByDealIdOrderByCurrentDateDesc(dealId);
+//
+//        // Если статус найден, возвращаем его, иначе возвращаем сообщение о том, что статус не установлен
+//        if (lastStatus != null) {
+//            return lastStatus.getStatusChoose();
+//        } else {
+//            return "Статус не установлен";
+//        }
+//    }
     public String getLastStatusForDeal(Long dealId) {
-        // Получаем последний статус по ID сделки, сортируя по дате или ID
-        Statuses lastStatus = statusesRepository.findTopByDealIdOrderByCurrentDateDesc(dealId);
-
-        // Если статус найден, возвращаем его, иначе возвращаем сообщение о том, что статус не установлен
-        if (lastStatus != null) {
-            return lastStatus.getStatusChoose();
-        } else {
-            return "Статус не установлен";
-        }
+        Statuses latestStatus = statusesRepository.findLastStatusByDealId(dealId);
+        return latestStatus != null ? latestStatus.getStatusChoose() : null;
     }
 }

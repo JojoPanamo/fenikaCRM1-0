@@ -31,56 +31,55 @@ public class DealController {
     @GetMapping("/deals")
     public String getUserDeals(
             @RequestParam(name = "statusFilter", required = false, defaultValue = "Новая заявка,В работе,Оплачен") String statusFilter,
-            @RequestParam(name = "userId", required = false) Long userId, Model model) {
-        // Получаем текущего пользователя
+            @RequestParam(name = "userId", required = false) Long userId, // Для фильтрации по пользователю
+            Model model) {
+
+        // Получение текущего пользователя
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userService.findById(userDetails.getId());
 
-        // Преобразуем строку фильтров в список статусов
+        // Преобразование строки статусов в список
         List<String> statuses = Arrays.asList(statusFilter.split(","));
-
         List<Deal> deals;
 
-        // Проверка роли: если администратор, то получить все сделки
-        if (currentUser.getRoles().stream().anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"))) {
-            deals = dealService.findDealsByStatusesForAdmin(statuses); // Метод для всех сделок с фильтрацией
-            dealService.getAllDealsWithTotalPayments();
-        } else {
-            // Иначе — только сделки текущего пользователя
-            deals = dealService.findDealsByStatuses(currentUser, statuses);
-            dealService.getAllDealsWithTotalPayments();
-        }
-
-        // Заполнение данных по сделкам
-        for (Deal deal : deals) {
-            deal.setCompanyProfit(paymentsService.getCompanyProfit(deal.getDealId()));
-
-            // Получаем последний статус сделки
-            String lastStatus = statusesService.getLastStatusForDeal(deal.getDealId());
-            deal.setLastStatus(lastStatus);
-        }
-        currentUser = userService.findByPrincipal(
-                (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        String userName = currentUser.getName();
-
-        // Проверка, является ли пользователь администратором
+        // Проверка роли администратора
         boolean isAdmin = currentUser.getRoles().stream()
                 .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
-        // Получение списка сделок с учетом фильтра по пользователю
-        deals = dealService.findDealsByUserId(userId);
-        model.addAttribute("selectedUserId", userId);
 
-        // Добавляем всех пользователей для отображения в фильтре
-        model.addAttribute("users", userService.findAll());
+        if (isAdmin) {
+            if (userId != null) {
+                // Если выбран конкретный пользователь, фильтруем сделки по пользователю и статусам
+                User selectedUser = userService.findById(userId);
+                deals = dealService.findDealsByStatuses(selectedUser, statuses);
+            } else {
+                // Если пользователь не выбран, фильтруем только по статусам
+                deals = dealService.findDealsByStatusesForAdmin(statuses);
+            }
+        } else {
+            // Обычный пользователь видит только свои сделки с фильтрацией по статусам
+            deals = dealService.findDealsByStatuses(currentUser, statuses);
+        }
 
-        // Добавляем список сделок и ID выбранного пользователя
-        model.addAttribute("selectedUserId", userId);
+        // Заполняем данные по сделкам
+        for (Deal deal : deals) {
+            String lastStatus = statusesService.getLastStatusForDeal(deal.getDealId());
+            deal.setLastStatus(lastStatus != null ? lastStatus : "Статус не установлен");
+            deal.setCompanyProfit(paymentsService.getCompanyProfit(deal.getDealId()));
+        }
 
+        // Добавляем атрибуты для модели
         model.addAttribute("deals", deals);
-        model.addAttribute("selectedStatuses", statuses); // Добавляем выбранные статусы для отображения
+        model.addAttribute("selectedStatuses", statuses);
         model.addAttribute("isAdmin", isAdmin);
-        return "deals"; // Отображаем страницу со списком сделок
+
+        if (isAdmin) {
+            model.addAttribute("users", userService.findAll()); // Список пользователей для фильтра
+            model.addAttribute("selectedUserId", userId != null ? userId : ""); // Передаем ID выбранного пользователя в модель
+        }
+
+        return "deals"; // Возвращаем страницу сделок
     }
+
 
 
 

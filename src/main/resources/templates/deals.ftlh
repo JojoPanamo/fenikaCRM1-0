@@ -192,14 +192,27 @@
     <form class="filter-form" action="/deals" method="get">
         <label for="statusFilter">Фильтровать по статусу:</label>
         <select name="statusFilter" id="statusFilter" onchange="this.form.submit()">
-            <option value="Новая заявка,В работе,Оплачен">Новые, В работе, Оплаченные</option>
-            <option value="В работе">В работе</option>
-            <option value="Оплачен">Оплачен</option>
-            <option value="Завершен">Завершен</option>
-            <option value="Новая заявка">Новая заявка</option>
-            <option value="Отказ">Отказ</option>
+            <option value="Новая заявка,В работе,Оплачен" <#if "Новая заявка,В работе,Оплачен" == selectedStatuses?join(",")>selected</#if>>Новые, В работе, Оплаченные</option>
+            <option value="В работе" <#if "В работе" == selectedStatuses?join(",")>selected</#if>>В работе</option>
+            <option value="Оплачен" <#if "Оплачен" == selectedStatuses?join(",")>selected</#if>>Оплачен</option>
+            <option value="Завершен" <#if "Завершен" == selectedStatuses?join(",")>selected</#if>>Завершен</option>
+            <option value="Новая заявка" <#if "Новая заявка" == selectedStatuses?join(",")>selected</#if>>Новая заявка</option>
+            <option value="Отказ" <#if "Отказ" == selectedStatuses?join(",")>selected</#if>>Отказ</option>
         </select>
+
+        <#if isAdmin>
+            <label for="userId">Фильтровать по пользователю:</label>
+            <select name="userId" id="userId" onchange="this.form.submit()">
+                <option value="" <#if selectedUserId!?string == "">selected</#if>>Все пользователи</option>
+                <#list users as user>
+                    <option value="${user.userId}" <#if user.userId?string == selectedUserId!?string>selected</#if>>${user.name}</option>
+                </#list>
+            </select>
+        </#if>
+
+
     </form>
+
     <a href="/deal-create" class="create-deal-btn">Создать новую сделку</a>
 </div>
 
@@ -231,9 +244,13 @@
                     <td>${deal.whatNeed}</td>
                     <td>${deal.name}</td>
                     <td>
-                        <span class="status-cell <#if deal.lastStatus == 'Новая заявка'>status-new<#elseif deal.lastStatus == 'В работе'>status-in-progress<#elseif deal.lastStatus == 'Оплачен'>status-paid<#elseif deal.lastStatus == 'Завершен'>status-completed<#elseif deal.lastStatus == 'Отказ'>status-declined</#if>">
-                            ${deal.lastStatus! 'Статус не установлен'}
-                        </span>
+                        <#if deal.lastStatus??>
+                            <span class="<#if deal.lastStatus == 'Новая заявка'>status-new<#elseif deal.lastStatus == 'В работе'>status-in-progress<#elseif deal.lastStatus == 'Оплачен'>status-paid<#elseif deal.lastStatus == 'Завершен'>status-completed<#elseif deal.lastStatus == 'Отказ'>status-declined</#if>">
+                    ${deal.lastStatus}
+                </span>
+                        <#else>
+                            <span>Статус не установлен</span>
+                        </#if>
                     </td>
                     <td>${deal.totalPayments!0.0}</td>
                     <#if isAdmin>
