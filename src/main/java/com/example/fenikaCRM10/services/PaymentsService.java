@@ -60,6 +60,14 @@ public class PaymentsService {
         return calculateDealCompanyProfit(deal);
     }
 
+    public Double getCompanyProfitInner(Long dealId) {
+        Deal deal = dealRepository.findById(dealId).orElse(null);
+        if (deal == null) {
+            return 0.0;
+        }
+        return calculateDealCompanyProfit(deal);
+    }
+
     public Double getManagerProfit(Long dealId, User user) {
         double companyProfit = getCompanyProfit(dealId);
         return companyProfit * user.getPercentage() / 100;
@@ -101,6 +109,11 @@ public class PaymentsService {
             return 0.0;
         }
         return calculateTotalPaymentsForDeal(deal);
+    }
+    public double getTotalPaymentsInside(Long dealId) {
+        Double totalPayments = paymentsRepository.getTotalPaymentsByDealId(dealId);
+        log.info("Сумма поступлений для сделки с ID {}: {}", dealId, totalPayments);
+        return totalPayments != null ? totalPayments : 0;
     }
 
     public double getTotalPaymentsForCompany() {
@@ -160,5 +173,10 @@ public class PaymentsService {
     public double getPercentage (User user){
 
         return user.getPercentage();
+    }
+    public double getTotalPaymentsInner(Long dealId) {
+        return paymentsRepository.getTotalPaymentsByDealId(dealId) != null
+                ? paymentsRepository.getTotalPaymentsByDealId(dealId)
+                : 0.0;
     }
 }

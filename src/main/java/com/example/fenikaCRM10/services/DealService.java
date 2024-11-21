@@ -204,4 +204,12 @@ public class DealService {
         }
         return dealRepository.findByUser_UserId(userId);
     }
+    public List<Deal> getAllDealsWithTotalPaymentsInner() {
+        List<Deal> deals = dealRepository.findAll();
+        for (Deal deal : deals) {
+            double totalPayments = paymentsService.getTotalPaymentsInner(deal.getDealId());
+            deal.setTotalPayments(String.valueOf(totalPayments));
+        }
+        return deals;
+    }
 }

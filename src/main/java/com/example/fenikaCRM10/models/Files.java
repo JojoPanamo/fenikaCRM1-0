@@ -26,9 +26,20 @@ public class Files {
     private Long size;
     @Column(name = "fileType")
     private String fileType;
+    @Column(name = "fileComment")
+    private String fileComment;
+    @Column(name = "currentDates")
+    private String currentDate;
     @Lob
     private byte[] bytes;
 //    @Column(name = "fileId")
 //    private String filePath;
+    public String getCurrentDate() {
+    return currentDate;
+    }
 
+    public void setCurrentDate(String currentDate) {
+        this.currentDate = currentDate;
+    }
 }
+

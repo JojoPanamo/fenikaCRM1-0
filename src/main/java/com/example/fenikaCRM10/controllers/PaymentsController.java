@@ -28,9 +28,12 @@ public class PaymentsController {
         model.addAttribute("dealId", dealService.getDealById(dealId));
         model.addAttribute("allPayments", paymentsService.getPaymentsByDealId(dealId));
         model.addAttribute("listOfStatPay", PaymentsStatusesListService.getPaymentsStatusesList());
-        model.addAttribute("earnedMoney", paymentsService.getCompanyProfit(dealId));
+        model.addAttribute("earnedMoney", paymentsService.getCompanyProfitInner(dealId));
         User currentUser = userService.findByPrincipal(
                 (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("moneyOfManager", paymentsService.getManagerProfit(dealId, currentUser));
         model.addAttribute("currentDate", LocalDate.now());
         return "payments";
@@ -42,7 +45,7 @@ public class PaymentsController {
         payment.setDeal(deal);  // Устанавливаем связь платежа со сделкой
         User user = deal.getUser();  // Если у сделки есть связь с пользователем
         payment.setUser(user);
-        payment.setCurrentDate(String.valueOf(LocalDate.now()));
+        payment.setCurrentDate(DateService.getCurrentDate());
         paymentsRepository.save(payment); // Сохраняем платеж
         return "redirect:/payments/" + dealId;
     }

@@ -175,7 +175,7 @@
     <#if isAdmin>
         <a href="/registration">
             <img src="/icons/reg.svg" alt="новый пользователь">
-            <p>Добавить<br>менеджера</p>
+            <p>  Добавить<br>менеджера</p>
         </a>
         <a href="/user-settings">
             <img src="/icons/sett.svg" alt="Настройки пользователя">
@@ -214,7 +214,7 @@
 
     </form>
 
-    <a href="/deal-create" class="create-deal-btn">Создать новую сделку</a>
+    <a href="/deal-create" class="create-deal-btn">+ Новая сделка</a>
 </div>
 
 <!-- Content Area -->
@@ -238,9 +238,9 @@
         </thead>
         <tbody>
         <#if deals?? && deals?size != 0>
-            <#list deals as deal>
+            <#list deals?reverse as deal>
                 <tr class="deal-row" onclick="window.location.href='/deal-info/${deal.dealId}'">
-                    <td>${deal.dealId}</td>
+                    <td>#&nbsp;${deal.dealId}</td>
                     <td>${deal.creationDate}</td>
                     <td>${deal.whatNeed}</td>
                     <td>${deal.name}</td>
@@ -253,7 +253,7 @@
                             <span>Статус не установлен</span>
                         </#if>
                     </td>
-                    <td>${deal.totalPayments!0.0}</td>
+                    <td>${deal.totalPayments!0}</td>
                     <#if isAdmin>
                         <td>${deal.user.name}</td>
                     </#if>

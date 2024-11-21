@@ -11,9 +11,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class DealController {
 //        model.addAttribute("deals", dealService.listDeals(name));
 //        return "deals";
 //    }
+
     @GetMapping("/deals")
     public String getUserDeals(
             @RequestParam(name = "statusFilter", required = false, defaultValue = "Новая заявка,В работе,Оплачен") String statusFilter,
@@ -61,11 +64,18 @@ public class DealController {
             deals = dealService.findDealsByStatuses(currentUser, statuses);
         }
 
+        // Формат для суммы
+        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("ru", "RU"));
+
         // Заполняем данные по сделкам
         for (Deal deal : deals) {
             String lastStatus = statusesService.getLastStatusForDeal(deal.getDealId());
             deal.setLastStatus(lastStatus != null ? lastStatus : "Статус не установлен");
-            deal.setCompanyProfit(paymentsService.getCompanyProfit(deal.getDealId()));
+
+            // Заполнение суммы поступлений с форматированием
+            double totalPayments = paymentsService.getTotalPaymentsInside(deal.getDealId());
+            String formattedTotalPayments = numberFormat.format(totalPayments) + " руб.";
+            deal.setTotalPayments(formattedTotalPayments);
         }
 
         // Добавляем атрибуты для модели
@@ -80,6 +90,8 @@ public class DealController {
 
         return "deals"; // Возвращаем страницу сделок
     }
+
+
 
 
 
@@ -153,8 +165,6 @@ public class DealController {
 
         // Подсчет прибыли компании
         deal.setCompanyProfit(paymentsService.getCompanyProfit(dealId));
-
-        // Добавление данных в модель
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("deal", deal);
 
