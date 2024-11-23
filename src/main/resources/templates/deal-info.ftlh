@@ -264,16 +264,25 @@
                     <div class="input">${deal.numberPhone}</div>
                 </div>
             </div>
-            <br>
             <div class="field-row">
+                <div class="client-field">
+                    <div class="label">Эл. почта:</div>
+                    <div class="input">${deal.email}</div>
+
+                </div>
                 <div class="client-field">
                     <div class="label">Адрес доставки:</div>
                     <div class="input">${deal.deliveryAdress}</div>
                 </div>
+            </div>
+            <div class="field-row">
+                <div class="client-field">
+                    <div class="label">Откуда:</div>
+                    <div class="input">${deal.whereFrom}</div>
+                </div>
                 <div class="client-field">
                     <div class="label">Ответственный:</div>
                     <div class="input">${deal.user.name}</div>
-                </div>
             </div>
         </div>
         <div class="deal-links1">

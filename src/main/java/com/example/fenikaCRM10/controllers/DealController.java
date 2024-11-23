@@ -112,6 +112,7 @@ public class DealController {
         // Сохраняем сделку
         dealService.saveDeal(deal);
 
+
         return "redirect:/deals";
     }
 
@@ -173,6 +174,14 @@ public class DealController {
 
     @GetMapping("/deal-create")
     public String dealCreatePAge(Model model) {
+        User currentUser = userService.findByPrincipal(
+                (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+        String userName = currentUser.getName();
+
+        model.addAttribute("userName", userName);
+        model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("whereFromOptions", DealServiceList.getAuthors());
         model.addAttribute("authors", DealServiceList.getAuthors());
 //        model.addAttribute("deal", dealService.listDeals());
