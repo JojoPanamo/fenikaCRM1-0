@@ -5,15 +5,17 @@ import com.example.fenikaCRM10.models.User;
 import com.example.fenikaCRM10.repositories.DealRepository;
 import com.example.fenikaCRM10.services.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,40 +31,68 @@ public class DealController {
 //        model.addAttribute("deals", dealService.listDeals(name));
 //        return "deals";
 //    }
+
     @GetMapping("/deals")
     public String getUserDeals(
             @RequestParam(name = "statusFilter", required = false, defaultValue = "Новая заявка,В работе,Оплачен") String statusFilter,
+            @RequestParam(name = "userId", required = false) Long userId, // Для фильтрации по пользователю
             Model model) {
-        // Получаем текущего пользователя
+
+        // Получение текущего пользователя
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userService.findById(userDetails.getId());
 
-        // Преобразуем строку фильтров в список статусов
+        // Преобразование строки статусов в список
         List<String> statuses = Arrays.asList(statusFilter.split(","));
-
         List<Deal> deals;
 
-        // Проверка роли: если администратор, то получить все сделки
-        if (currentUser.getRoles().stream().anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"))) {
-            deals = dealService.findDealsByStatusesForAdmin(statuses); // Метод для всех сделок с фильтрацией
+        // Проверка роли администратора
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            if (userId != null) {
+                // Если выбран конкретный пользователь, фильтруем сделки по пользователю и статусам
+                User selectedUser = userService.findById(userId);
+                deals = dealService.findDealsByStatuses(selectedUser, statuses);
+            } else {
+                // Если пользователь не выбран, фильтруем только по статусам
+                deals = dealService.findDealsByStatusesForAdmin(statuses);
+            }
         } else {
-            // Иначе — только сделки текущего пользователя
+            // Обычный пользователь видит только свои сделки с фильтрацией по статусам
             deals = dealService.findDealsByStatuses(currentUser, statuses);
         }
 
-        // Заполнение данных по сделкам
-        for (Deal deal : deals) {
-            deal.setCompanyProfit(paymentsService.getCompanyProfit(deal.getDealId()));
+        // Формат для суммы
+        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("ru", "RU"));
 
-            // Получаем последний статус сделки
+        // Заполняем данные по сделкам
+        for (Deal deal : deals) {
             String lastStatus = statusesService.getLastStatusForDeal(deal.getDealId());
-            deal.setLastStatus(lastStatus);
+            deal.setLastStatus(lastStatus != null ? lastStatus : "Статус не установлен");
+
+            // Заполнение суммы поступлений с форматированием
+            double totalPayments = paymentsService.getTotalPaymentsInside(deal.getDealId());
+            String formattedTotalPayments = numberFormat.format(totalPayments) + " руб.";
+            deal.setTotalPayments(formattedTotalPayments);
         }
 
+        // Добавляем атрибуты для модели
         model.addAttribute("deals", deals);
-        model.addAttribute("selectedStatuses", statuses); // Добавляем выбранные статусы для отображения
-        return "deals"; // Отображаем страницу со списком сделок
+        model.addAttribute("selectedStatuses", statuses);
+        model.addAttribute("isAdmin", isAdmin);
+
+        if (isAdmin) {
+            model.addAttribute("users", userService.findAll()); // Список пользователей для фильтра
+            model.addAttribute("selectedUserId", userId != null ? userId : ""); // Передаем ID выбранного пользователя в модель
+        }
+
+        return "deals"; // Возвращаем страницу сделок
     }
+
+
+
 
 
 
@@ -118,18 +148,33 @@ public class DealController {
 
     @GetMapping("deal-info/{dealId}")
     public String dealInfo(@PathVariable Long dealId, Model model) {
+        // Получение текущего пользователя
         CustomUserDetails userDetailsInfo = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userService.findById(userDetailsInfo.getId());
-        List<Deal> userDeals = dealService.findByUser(currentUser);
-        for (Deal deal : userDeals) {
-            deal.setCompanyProfit(paymentsService.getCompanyProfit(deal.getDealId()));
-        }
-        model.addAttribute("deal", dealService.getDealById(dealId));
+
+        // Проверка роли администратора
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+
+        // Получение данных о сделке
+        Deal deal = dealService.getDealById(dealId);
+
+        // Получение последнего статуса
+        String lastStatus = statusesService.getLastStatusForDeal(dealId);
+        deal.setLastStatus(lastStatus != null ? lastStatus : "Статус не установлен");
+
+        // Подсчет прибыли компании
+        deal.setCompanyProfit(paymentsService.getCompanyProfit(dealId));
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("deal", deal);
+
         return "deal-info";
     }
+
     @GetMapping("/deal-create")
     public String dealCreatePAge(Model model) {
-        model.addAttribute("authors", UserServiceList.getAuthors());
+        model.addAttribute("whereFromOptions", DealServiceList.getAuthors());
+        model.addAttribute("authors", DealServiceList.getAuthors());
 //        model.addAttribute("deal", dealService.listDeals());
         return "deal-create";
     }
@@ -140,5 +185,9 @@ public class DealController {
     @GetMapping ("/deal-create/back")
     public String onBackPressed1() {
         return "redirect:/";
+    }
+
+    public List<Deal> findDealsByUser(Long userId) {
+        return dealRepository.findByUser_UserId(userId);
     }
 }

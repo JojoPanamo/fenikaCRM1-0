@@ -1,12 +1,16 @@
 package com.example.fenikaCRM10.controllers;
 
 import com.example.fenikaCRM10.models.Files;
+import com.example.fenikaCRM10.models.User;
+import com.example.fenikaCRM10.services.CustomUserDetails;
 import com.example.fenikaCRM10.services.FilesService;
+import com.example.fenikaCRM10.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +26,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilesController {
     private final FilesService filesService;
+    private final UserService userService;
 
     @GetMapping("/files/{dealId}")
     public String getFilesByDealId(@PathVariable Long dealId, Model model) {
         List<Files> files = filesService.getFilesByDealId(dealId);
+        User currentUser = userService.findByPrincipal(
+                (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("dealId", dealId);
         model.addAttribute("allFiles", files);
         return "files";
@@ -46,12 +56,15 @@ public class FilesController {
     }
 
     @PostMapping("/files/upload/{dealId}")
-    public String uploadFile(@PathVariable Long dealId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+    public String uploadFile(@PathVariable Long dealId,
+                             @RequestParam("file") MultipartFile multipartFile,
+                             @RequestParam("fileComment") String fileComment) throws IOException {
         if (!multipartFile.isEmpty()) {
-            filesService.saveFile(multipartFile, dealId);
+            filesService.saveFile(multipartFile, dealId, fileComment);
         }
         return "redirect:/files/" + dealId;
     }
+
 
     @PostMapping("/files/delete/{fileId}")
     public String deleteFile(@PathVariable Long fileId) {

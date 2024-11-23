@@ -12,3 +12,10 @@ logs/application.log
 logs/application.log
 logs/application.log.2024-10-23.0.gz
 logs/application.log.2024-10-30.0.gz
+*.log
+*.gz
+*.gz
+*.log
+*.log
+*.log
+logs/application.log

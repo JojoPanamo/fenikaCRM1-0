@@ -28,7 +28,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         // Разрешить доступ к публичным ресурсам
-                        .requestMatchers("/**", "/login", "/public/**").permitAll()
+                        .requestMatchers( "/login", "/public/**").permitAll()
                         .requestMatchers("/registration").hasRole("ADMIN")
                         .anyRequest().authenticated() // Остальные запросы требуют аутентификации
 

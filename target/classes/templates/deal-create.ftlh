@@ -11,6 +11,12 @@
     Номер телефона клиента: <input type="text" name="numberPhone"/><br><br>
     Что запросил клиент: <input type="text" name="whatNeed"/><br><br>
     Адрес доставки: <input type="text" name="deliveryAdress"/><br><br>
+    <label for="whereFrom">Откуда пришел клиент:</label>
+    <select id="whereFrom" name="whereFrom">
+        <#list whereFromOptions as option>
+            <option value="${option}">${option}</option>
+        </#list>
+    </select>
 
     <input type="submit" value="Сохранить"/>
 </form>

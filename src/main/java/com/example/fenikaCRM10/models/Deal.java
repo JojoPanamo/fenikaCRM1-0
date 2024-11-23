@@ -42,4 +42,8 @@ public class Deal {
     private String lastStatus;
     @Column(name = "creation_date")
     private LocalDate creationDate;
+    @Column(name = "whereFrom")
+    private String whereFrom;
+    @Transient
+    private String totalPayments;
 }

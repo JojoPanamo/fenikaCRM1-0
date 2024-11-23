@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -14,17 +16,21 @@ import java.util.List;
 public class FilesService {
     private final FilesRepository filesRepository;
 
-    public void saveFile(MultipartFile file, Long dealId) throws IOException {
+    public void saveFile(MultipartFile file, Long dealId, String fileComment) throws IOException {
         Files newFile = new Files();
         newFile.setDealId(dealId);
         String originalFileName = file.getOriginalFilename();
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        newFile.setFileName(file.getOriginalFilename());
+        newFile.setFileName(originalFileName);
         newFile.setSize(file.getSize());
         newFile.setFileType(file.getContentType());
         newFile.setBytes(file.getBytes());
+        newFile.setFileComment(fileComment);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        newFile.setCurrentDate(LocalDateTime.now().format(formatter));
         filesRepository.save(newFile);
     }
+
 
     public List<Files> getFilesByDealId(Long dealId) {
         return filesRepository.findAllByDealId(dealId);

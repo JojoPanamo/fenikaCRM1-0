@@ -42,14 +42,18 @@ public class UserStatisticsController {
             int completedDealsCount = dealService.getTotalCompletedDealsCount();
             int inProgressOrPaidDealsCount = dealService.getTotalInProgressOrPaidDealsCount();
             int refusedDealsCount = dealService.getTotalRefusedDealsCount();
+            int totalDealsCount = refusedDealsCount + completedDealsCount + inProgressOrPaidDealsCount;
             double totalPayments = paymentsService.getTotalPaymentsForCompany();
             double companyProfit = paymentsService.getCompanyProfitForCompany();
 
+            model.addAttribute("totalDealsCount", totalDealsCount);
             model.addAttribute("completedDealsCount", completedDealsCount);
             model.addAttribute("inProgressOrPaidDealsCount", inProgressOrPaidDealsCount);
             model.addAttribute("refusedDealsCount", refusedDealsCount);
             model.addAttribute("totalPayments", totalPayments);
             model.addAttribute("companyProfit", companyProfit);
+            Map<String, Integer> dealsCountBySource = dealService.getDealsCountBySourceForCurrentMonth();
+            model.addAttribute("dealsCountBySource", dealsCountBySource);
 
             // Индивидуальная статистика для каждого менеджера
             List<User> users = userService.findAll();
@@ -58,6 +62,10 @@ public class UserStatisticsController {
 
             for (User user : users) {
                 int userCompletedDeals = dealService.countDealsByLastStatusAndUser(user, "Завершен");
+                // Аналогично, можете добавить фильтрацию по текущему месяцу для других статусов, если требуется
+
+                Map<String, Object> stats = new HashMap<>();
+                stats.put("completedDeals", userCompletedDeals);
                 int userInProgressOrPaidDeals = dealService.countDealsByStatusesAndUser(user, Arrays.asList("В работе", "Оплачен", "Новая заявка"));
                 int userRefusedDeals = dealService.countDealsByLastStatusAndUser(user, "Отказ");
                 double userTotalPayments = paymentsService.getTotalPaymentsForUser(user);
@@ -65,7 +73,6 @@ public class UserStatisticsController {
                 double userManagerProfit = paymentsService.getManagerProfitForUser(user);
                 double percentage = paymentsService.getPercentage(user);
 
-                Map<String, Object> stats = new HashMap<>();
                 stats.put("completedDeals", userCompletedDeals);
                 stats.put("inProgressOrPaidDeals", userInProgressOrPaidDeals);
                 stats.put("refusedDeals", userRefusedDeals);

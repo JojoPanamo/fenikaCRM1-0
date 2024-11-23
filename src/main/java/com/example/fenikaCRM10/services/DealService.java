@@ -1,10 +1,8 @@
 package com.example.fenikaCRM10.services;
 
-import com.example.fenikaCRM10.models.Deal;
-import com.example.fenikaCRM10.models.StatisticsDTO;
-import com.example.fenikaCRM10.models.Statuses;
-import com.example.fenikaCRM10.models.User;
+import com.example.fenikaCRM10.models.*;
 import com.example.fenikaCRM10.repositories.DealRepository;
+import com.example.fenikaCRM10.repositories.PaymentsRepository;
 import com.example.fenikaCRM10.repositories.StatusesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.time.YearMonth;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,11 +22,8 @@ public class DealService {
     private final StatusesRepository statusesRepository;
     private final PaymentsService paymentsService;
     private final UserService userService;
+    private final PaymentsRepository paymentsRepository;
 
-    // Метод для поиска сделок по userId
-    public List<Deal> findDealsByUserId(Long userId) {
-        return dealRepository.findByUser_UserId(userId);  // Поиск сделок по ID пользователя
-    }
 
     // Метод для поиска сделок по имени
     public List<Deal> listDeals(String name) {
@@ -42,6 +36,9 @@ public class DealService {
 
     // Метод для сохранения сделки
     public void saveDeal(Deal deal) {
+        if (deal.getCreationDate() == null) {
+            deal.setCreationDate(LocalDate.now());
+        }
         dealRepository.save(deal);  // Сохранение сделки в базу данных
         Statuses newStatus = new Statuses();
         newStatus.setDealId(deal.getDealId());  // Присваиваем ID сделки
@@ -72,7 +69,8 @@ public class DealService {
     }
     // Метод для одного статуса
     public int countDealsByLastStatusAndUser(User user, String status) {
-        return countDealsByStatusesAndUser(user, Collections.singletonList(status));
+        LocalDate now = LocalDate.now();
+        return dealRepository.countDealsByLastStatusAndUserForMonth(user, status, now.getMonthValue(), now.getYear());
     }
 
     // Метод для списка статусов
@@ -146,15 +144,72 @@ public class DealService {
         return dealRepository.findAllDealsByStatuses(statuses);
     }
     public int getTotalCompletedDealsCount() {
-        return dealRepository.countDealsByLastStatus("Завершен");
+        LocalDate now = LocalDate.now();
+        return dealRepository.countDealsByLastStatus("Завершен", now.getMonthValue(), now.getYear());
     }
 
     public int getTotalRefusedDealsCount() {
-        return dealRepository.countDealsByLastStatus("Отказ");
+        LocalDate now = LocalDate.now();
+        return dealRepository.countDealsByLastStatus("Отказ", now.getMonthValue(), now.getYear());
     }
 
     public int getTotalInProgressOrPaidDealsCount() {
         List<String> statuses = Arrays.asList("В работе", "Оплачен", "Новая заявка");
         return dealRepository.countDealsByLastStatuses(statuses);
+    }
+    public Map<String, Integer> getDealsCountBySource() {
+        // Получаем все возможные источники из DealServiceList
+        List<String> sources = DealServiceList.getAuthors();
+        Map<String, Integer> dealsCountBySource = new HashMap<>();
+
+        // Подсчитываем количество сделок для каждого источника
+        for (String source : sources) {
+            int count = dealRepository.countByWhereFrom(source);
+            dealsCountBySource.put(source, count);
+        }
+
+        return dealsCountBySource;
+    }
+    public Map<String, Integer> getDealsCountBySourceForCurrentMonth() {
+        List<String> sources = DealServiceList.getAuthors();
+        Map<String, Integer> dealsCountBySource = new HashMap<>();
+
+        // Получаем текущий месяц и год
+        YearMonth currentMonth = YearMonth.now();
+
+        // Подсчитываем количество сделок для каждого источника, созданных в текущем месяце
+        for (String source : sources) {
+            int count = dealRepository.countByWhereFromAndMonthAndYear(source, currentMonth.getMonthValue(), currentMonth.getYear());
+            dealsCountBySource.put(source, count);
+        }
+
+        return dealsCountBySource;
+    }
+    public List<Deal> getAllDealsWithTotalPayments() {
+        List<Deal> deals = dealRepository.findAll();
+
+        for (Deal deal : deals) {
+            // Расчет суммы поступлений для каждой сделки
+            double totalPayments = paymentsRepository.findByDealId(deal.getDealId())
+                    .stream()
+                    .mapToDouble(Payments::getSum)
+                    .sum();
+            deal.setTotalPayments(String.valueOf(totalPayments));
+        }
+        return deals;
+    }
+    public List<Deal> findDealsByUserId(Long userId) {
+        if (userId == null) {
+            return dealRepository.findAll();
+        }
+        return dealRepository.findByUser_UserId(userId);
+    }
+    public List<Deal> getAllDealsWithTotalPaymentsInner() {
+        List<Deal> deals = dealRepository.findAll();
+        for (Deal deal : deals) {
+            double totalPayments = paymentsService.getTotalPaymentsInner(deal.getDealId());
+            deal.setTotalPayments(String.valueOf(totalPayments));
+        }
+        return deals;
     }
 }
