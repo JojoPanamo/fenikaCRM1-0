@@ -356,16 +356,12 @@
                 <input type="text" name="statusComment" placeholder="Комментарий" required />
 
             </div>
+            <div class="deal-links-container">
+                <form>
+                    <button type="submit" class="delete-button1" style="background: #FEB155; color: #20252B;">Сохранить</button>
+                </form>
+            </div>
         </form>
-
-        <div class="deal-links-container">
-<#--            <form action="/statuses/${dealId.dealId}/back" method="get">-->
-<#--                <button class="back-button" type="submit">< Назад</button>-->
-<#--            </form>-->
-            <form>
-                <button type="submit" class="delete-button1" style="background: #FEB155; color: #20252B;">Сохранить</button>
-            </form>
-        </div>
     </div>
 </div>
 </body>

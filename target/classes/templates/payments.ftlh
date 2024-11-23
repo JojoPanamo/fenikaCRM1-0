@@ -389,13 +389,14 @@
                     <input type="number" name="sum" placeholder="Сумма" required />
                     <input type="text" name="commentPayments" placeholder="Комментарий" required />
             </div>
-        </form>
-        <div class="deal-links-container">
-            <form>
-                <button type="submit" class="delete-button1" style="background: #FEB155; color: #20252B;">Сохранить</button>
-            </form>
+            <div class="deal-links-container">
+                <form>
+                    <button type="submit" class="delete-button1" style="background: #FEB155; color: #20252B;">Сохранить</button>
+                </form>
                 Остаток: ${earnedMoney} руб.
-        </div>
+            </div>
+        </form>
+
 
     </div>
 

@@ -245,7 +245,7 @@
         <button class="show-all-button" id="toggleComments">v Развернуть</button>
 
         <form action="/saveComment/${dealId.dealId}" method="post" class="form-container">
-            <input type="text" name="comment" placeholder="Напишите комментарий" />
+            <input type="text" name="comment" placeholder="Напишите комментарий" required/>
             <div class="form-buttons">
                 <button type="submit">Сохранить</button>
 <#--                <a href="/comments/${dealId.dealId}/back" style="align-self: flex-start; text-decoration: none;">-->
