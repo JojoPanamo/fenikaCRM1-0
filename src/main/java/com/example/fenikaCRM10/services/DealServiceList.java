@@ -9,12 +9,12 @@ import java.util.List;
 public class DealServiceList {
     private static List<String> whereFromList = new ArrayList<>();
     public DealServiceList(){
-        whereFromList.add("Сайт");
-        whereFromList.add("Поля");
-        whereFromList.add("Авито");
-        whereFromList.add("С улицы");
-        whereFromList.add("По рекомендации");
-        whereFromList.add("Повторное обращение");
+        whereFromList.add("САЙТ");
+        whereFromList.add("ПОЛЯ");
+        whereFromList.add("АВИТО");
+        whereFromList.add("С УЛИЦЫ");
+        whereFromList.add("РЕКОМЕНДАЦИЯ");
+        whereFromList.add("ПОВТОРНОЕ ОБРАЩЕНИЕ");
     }
     public static List<String> getAuthors() {
         return whereFromList;

@@ -18,7 +18,8 @@
         input[type="text"]{
             padding: 8px 12px;
             background: #F6F6F6;
-            border: 1px solid #D1D1D3;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
             border-radius: 5px;
             font-size: 14px;
             color: #20252B;
@@ -110,7 +111,8 @@
         .payment-field {
             padding: 8px 12px;
             background: #F6F6F6;
-            border: 1px solid #D1D1D3;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
             border-radius: 5px;
             font-size: 14px;
             color: #20252B;
@@ -122,7 +124,8 @@
         .payment-comment-field {
             padding: 8px 12px;
             background: #F6F6F6;
-            border: 1px solid #D1D1D3;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
             border-radius: 5px;
             font-size: 14px;
             color: #20252B;
@@ -195,7 +198,8 @@
         .form-container input[type="number"]{
             padding: 8px 12px;
             background: #F6F6F6;
-            border: 1px solid #D1D1D3;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
             border-radius: 5px;
             font-size: 14px;
             color: #20252B;

@@ -111,8 +111,9 @@
             flex-grow: 1;
             padding: 8px 12px;
             background: #F6F6F6;
-            border: 1px solid #D1D1D3;
-            border-radius: 10px;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
+            border-radius: 5px;
             font-size: 14px;
             font-weight: 500;
             color: #20252B;
@@ -135,8 +136,9 @@
             padding: 12px 16px;
             font-size: 14px;
             background: #F6F6F6;
-            border: 1px solid #D1D1D3;
-            border-radius: 10px;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
+            border-radius: 5px;
             color: #20252B;
         }
 
@@ -145,6 +147,7 @@
             justify-content: space-between;
             width: 100%;
             margin-top: 20px;
+
         }
 
         .form-buttons button {
@@ -155,6 +158,7 @@
             border-radius: 5px;
             border: 1px solid #D1D1D3;
             cursor: pointer;
+            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
         }
 
         .form-buttons button:hover {

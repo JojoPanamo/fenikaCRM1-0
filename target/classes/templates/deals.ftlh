@@ -107,7 +107,7 @@
             max-width: 1800px;
             border-collapse: collapse;
             background-color: #FFFFFF;
-            border-radius: 10px;
+            border-radius: 5px;
             overflow: hidden;
             margin-top: 20px;
             border: 1px solid #E0E0E0;
@@ -246,7 +246,8 @@
                     <td>${deal.name}</td>
                     <td>
                         <#if deal.lastStatus??>
-                            <span class="<#if deal.lastStatus == 'Новая заявка'>status-new<#elseif deal.lastStatus == 'В работе'>status-in-progress<#elseif deal.lastStatus == 'Оплачен'>status-paid<#elseif deal.lastStatus == 'Завершен'>status-completed<#elseif deal.lastStatus == 'Отказ'>status-declined</#if>">
+                            <span class="<#if deal.lastStatus == 'Новая заявка'>status-new<#elseif deal.lastStatus == 'В работе'>status-in-progress<#elseif deal.lastStatus == 'Оплачен'>status-paid<#elseif deal.lastStatus == 'Завершен'>status-completed<#elseif deal.lastStatus == 'Отказ'>status-declined</#if>" style="border-radius: 5px;
+            border: 1px solid #D1D1D3; padding: 4px; border-radius: 3px">
                     ${deal.lastStatus}
                 </span>
                         <#else>

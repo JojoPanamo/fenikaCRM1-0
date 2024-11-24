@@ -103,19 +103,30 @@
             box-sizing: border-box;
             padding: 12px 16px;
             background: #F6F6F6;
-            border: 1px solid #D1D1D3;
-            border-radius: 10px;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
+            border-radius: 5px;
             font-size: 14px;
             line-height: 1.6;
             color: #20252B;
             width: 100%;
-            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+            /*box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);*/
         }
 
+
         select.input {
+            width: 100%;
+            height: 48px;
             padding: 12px;
-            appearance: none;
+            background: #F6F6F6;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #20252B;
             cursor: pointer;
+            appearance: auto;
+            box-sizing: border-box;
         }
 
         /* Кнопки */

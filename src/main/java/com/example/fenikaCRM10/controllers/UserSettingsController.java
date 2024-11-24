@@ -1,8 +1,10 @@
 package com.example.fenikaCRM10.controllers;
 
 import com.example.fenikaCRM10.models.User;
+import com.example.fenikaCRM10.services.CustomUserDetails;
 import com.example.fenikaCRM10.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,13 @@ public class UserSettingsController {
 
     public String getUserSettings(Model model) {
         List<User> users = userService.findAll();
+        CustomUserDetails userDetailsInfo = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = userService.findById(userDetailsInfo.getId());
+
+        // Проверка роли администратора
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("users", users);
         return "user-settings";
     }

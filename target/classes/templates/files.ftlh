@@ -18,12 +18,15 @@
         input[type="text"] {
             padding: 8px 12px;
             background: #F6F6F6;
-            border: 1px solid #D1D1D3;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
             border-radius: 5px;
             font-size: 14px;
             color: #20252B;
             margin-left: 20px;
             width: 500px;
+            height: 23px;
+
         }
 
         /* Скрываем стандартное поле выбора файла */
@@ -153,7 +156,8 @@
         .file-comment-field {
             padding: 8px 12px;
             background: #F6F6F6;
-            border: 1px solid #D1D1D3;
+            border: 0;
+            border-bottom: 1px solid #D1D1D3;
             border-radius: 5px;
             font-size: 14px;
             color: #20252B;
