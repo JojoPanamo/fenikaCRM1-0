@@ -70,7 +70,7 @@
             border: 1px solid #D1D1D3;
             border-collapse: collapse;
             text-align: center;
-            
+
         }
 
         th {

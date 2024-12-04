@@ -40,6 +40,10 @@ public class Deal {
     private String status;
     @Transient
     private String lastStatus;
+    @Transient
+    private String lastComment;
+    @Column(name = "thinkSum")
+    private Double thinkSum;
     @Column(name = "creation_date")
     private LocalDate creationDate;
     @Column(name = "whereFrom")

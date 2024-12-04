@@ -1,6 +1,7 @@
 package com.example.fenikaCRM10.services;
 
 import com.example.fenikaCRM10.models.Comments;
+import com.example.fenikaCRM10.models.Statuses;
 import com.example.fenikaCRM10.repositories.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,4 +43,9 @@ public class CommentService {
             return null;
         }
     }
+    public String getLastCommentForDeal(Long dealId) {
+        Comments latestComment = commentRepository.findLastCommentByDealId(dealId);
+        return latestComment != null ? latestComment.getComment() : null;
+    }
+
 }

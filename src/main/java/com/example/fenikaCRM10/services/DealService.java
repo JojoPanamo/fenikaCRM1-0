@@ -1,6 +1,7 @@
 package com.example.fenikaCRM10.services;
 
 import com.example.fenikaCRM10.models.*;
+import com.example.fenikaCRM10.repositories.CommentRepository;
 import com.example.fenikaCRM10.repositories.DealRepository;
 import com.example.fenikaCRM10.repositories.PaymentsRepository;
 import com.example.fenikaCRM10.repositories.StatusesRepository;
@@ -23,6 +24,7 @@ public class DealService {
     private final PaymentsService paymentsService;
     private final UserService userService;
     private final PaymentsRepository paymentsRepository;
+    private final CommentRepository commentRepository;
 
 
     // Метод для поиска сделок по имени
@@ -61,8 +63,20 @@ public class DealService {
         for (Deal deal : userDeals) {
             // Получаем последний статус сделки
             Statuses lastStatus = statusesRepository.findLastStatusByDealId(deal.getDealId());
+
             if (lastStatus != null) {
                 deal.setLastStatus(lastStatus.getStatusChoose());  // Устанавливаем последний статус
+            }
+        }
+        return userDeals;
+    }
+    public List<Deal> findByUser1(User user) {
+        List<Deal> userDeals = dealRepository.findByUser(user);
+        for (Deal deal : userDeals) {
+            // Получаем последний статус сделки
+            Comments lastComment = commentRepository.findLastCommentByDealId(deal.getDealId());
+            if (lastComment != null) {
+                deal.setLastStatus(lastComment.getComment());  // Устанавливаем последний статус
             }
         }
         return userDeals;
@@ -71,6 +85,17 @@ public class DealService {
     public int countDealsByLastStatusAndUser(User user, String status) {
         LocalDate now = LocalDate.now();
         return dealRepository.countDealsByLastStatusAndUserForMonth(user, status, now.getMonthValue(), now.getYear());
+    }
+
+    public void updateThinkSum(Long dealId, Double thinkSum) {
+        // Ищем сделку по ID
+        Deal deal = dealRepository.findById(dealId).orElseThrow(() -> new RuntimeException("Сделка не найдена"));
+
+        // Обновляем сумму
+        deal.setThinkSum(thinkSum);
+
+        // Сохраняем изменения
+        dealRepository.save(deal);
     }
 
     // Метод для списка статусов

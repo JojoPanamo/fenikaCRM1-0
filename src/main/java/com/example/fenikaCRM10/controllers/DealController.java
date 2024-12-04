@@ -25,6 +25,7 @@ public class DealController {
     private final DealRepository dealRepository;
     private final PaymentsService paymentsService;
     private final StatusesService statusesService;
+    private final CommentService commentService;
 
     //    @GetMapping("/deals/")
 //    public String deals(@RequestParam(name = "name", required = false) String name, Model model) {
@@ -164,12 +165,34 @@ public class DealController {
         String lastStatus = statusesService.getLastStatusForDeal(dealId);
         deal.setLastStatus(lastStatus != null ? lastStatus : "Статус не установлен");
 
+        String lastComment = commentService.getLastCommentForDeal(dealId);
+        deal.setLastComment(lastComment != null ? lastComment : "Комментариев пока нет");
+
+        Double thinkSum = deal.getThinkSum() != null ? deal.getThinkSum() : 0.0; // Если null, заменяем на 0
+        model.addAttribute("thinkSum", thinkSum);
+
         // Подсчет прибыли компании
         deal.setCompanyProfit(paymentsService.getCompanyProfit(dealId));
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("deal", deal);
 
         return "deal-info";
+    }
+    @PostMapping("/update-think-sum")
+    public String updateThinkSum(@RequestParam("dealId") Long dealId,
+                                 @RequestParam("thinkSum") Double thinkSum, Model model) {
+        CustomUserDetails userDetailsInfo = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = userService.findById(userDetailsInfo.getId());
+
+        // Проверка роли администратора
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+        // Обновляем сумму через сервис
+        dealService.updateThinkSum(dealId, thinkSum);
+
+        model.addAttribute("isAdmin", isAdmin);
+        // Перенаправляем обратно на страницу информации о сделке
+        return "redirect:/deal-info/" + dealId;
     }
 
     @GetMapping("/deal-create")
@@ -189,7 +212,7 @@ public class DealController {
     }
     @GetMapping ("/deal-info/{dealId}/back")
     public String onBackPressed(@PathVariable Long dealId) {
-        return "redirect:/";
+        return "redirect:/deals";
     }
     @GetMapping ("/deal-create/back")
     public String onBackPressed1() {

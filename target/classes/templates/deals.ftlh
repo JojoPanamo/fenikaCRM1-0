@@ -85,7 +85,7 @@
             padding: 12px 20px;
             font-size: 14px;
             color: #20252B;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
             box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
             text-decoration: none;
@@ -230,7 +230,7 @@
             <th class="what-need-column">Что запросили</th>
             <th class="client-column">Клиент</th>
             <th class="status-column">Статус</th>
-            <th class="sum-column">Сумма</th>
+            <th class="sum-column">Предпологаемая сумма</th>
             <#if isAdmin>
                 <th class="manager-column">Ответственный</th>
             </#if>
@@ -254,7 +254,7 @@
                             <span>Статус не установлен</span>
                         </#if>
                     </td>
-                    <td>${deal.totalPayments!0}</td>
+                    <td>${deal.thinkSum!0} руб.</td>
                     <#if isAdmin>
                         <td>${deal.user.name}</td>
                     </#if>

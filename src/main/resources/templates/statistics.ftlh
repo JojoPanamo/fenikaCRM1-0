@@ -396,6 +396,7 @@
                     </div>
                 </div>
             </div>
+            <br>
                 <h2>Статистика по источникам клиентов</h2>
 
                 <!-- Первый ряд -->
@@ -423,11 +424,14 @@
                         </div>
                     </#list>
                 </div>
+            <br>
             </div>
+        <br>
 
         <!-- Статистика по каждому менеджеру -->
         <#list userStatisticsMap?keys as userId>
             <div class="stats-wrapper">
+                <br>
                 <h2>Статистика для ${userNamesMap[userId]}</h2>
 
                 <#if userStatisticsMap[userId]??>

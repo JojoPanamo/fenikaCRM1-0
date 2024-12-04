@@ -135,6 +135,11 @@
             justify-content: space-between;
             margin-top: 30px;
         }
+        .what-row{
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
 
         .back-button {
             position: absolute;
@@ -174,6 +179,11 @@
         .cancel-button:hover {
             background: none;
         }
+        .star-requaired{
+            color: #C60000;
+            font-size: 12px;
+            font-weight: normal;
+        }
 
         .save-button {
             font-size: 14px;
@@ -188,6 +198,18 @@
 
         .save-button:hover {
             background: #A3E48C;
+        }
+        .label {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        .star-required {
+            color: red;
+            font-weight: normal;
         }
     </style>
 </head>
@@ -207,16 +229,19 @@
         <form action="deal-create-save" method="post" class="deal-info-fields">
             <!-- Поле "Что запросил клиент" -->
             <div>
-                <div class="label" style="font-size: 12px">Что запросил клиент:</div>
+                <div class="label">
+                    <div class="star-required">*</div>
+                    Что запросил клиент:
+                </div>
                 <input type="text" name="whatNeed" class="input" required>
             </div>
             <div class="field-row">
                 <div class="client-field">
-                    <div class="label" style="font-size: 12px">Наименование клиента:</div>
+                    <div class="label" style="font-size: 12px"><div class="star-required">*</div> Наименование клиента:</div>
                     <input type="text" name="name" class="input" required>
                 </div>
                 <div class="client-field">
-                    <div class="label" style="font-size: 12px">Номер телефона клиента:</div>
+                    <div class="label" style="font-size: 12px"><div class="star-required">*</div> Номер телефона клиента:</div>
                     <input type="text" name="numberPhone" class="input" required>
                 </div>
             </div>
@@ -226,13 +251,13 @@
                     <input type="text" name="email" class="input">
                 </div>
                 <div class="client-field">
-                    <div class="label" style="font-size: 12px">Адрес доставки:</div>
+                    <div class="label" style="font-size: 12px"><div class="star-required">*</div> Адрес доставки:</div>
                     <input type="text" name="deliveryAdress" class="input" required>
                 </div>
             </div>
             <div class="field-row">
                 <div class="client-field">
-                    <div class="label" style="font-size: 12px">Откуда пришел клиент:</div>
+                    <div class="label" style="font-size: 12px"><div class="star-required">*</div> Откуда пришел клиент:</div>
                     <select name="whereFrom" class="input" required>
                         <option value="" disabled selected>Выберите источник</option>
                         <#list whereFromOptions as option>
@@ -248,10 +273,13 @@
             <br>
             <div class="button-row">
                 <button type="submit" class="back-button">Сохранить</button>
-                <form action="/deals" method="get">
-                    <button type="submit" class="cancel-button" formnovalidate >Отменить</button>
-                </form>
+
             </div>
+
+        </form>
+        <form action="/deals" method="get">
+            <button type="submit" class="cancel-button" formnovalidate >Отменить</button>
+        </form>
     </div>
 </div>
 </body>

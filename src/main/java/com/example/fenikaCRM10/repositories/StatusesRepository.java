@@ -14,6 +14,8 @@ public interface StatusesRepository extends JpaRepository<Statuses, Long>  {
     Statuses findLastStatusByDealId(@Param("dealId") Long dealId);
     Statuses findTopByDealIdOrderByCurrentDateDesc(Long dealId);
 
+
+
 //    @Query("SELECT s FROM Statuses s WHERE s.deal_id = :dealId ORDER BY s.status_id DESC")
 //    Optional<Statuses> findLatestStatusByDealId(@Param("dealId") Long dealId);
 
