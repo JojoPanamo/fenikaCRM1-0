@@ -336,6 +336,10 @@
         <img src="/icons/Vector.svg" alt="Сделки">
         <p>Сделки</p>
     </a>
+    <a href="/clients">
+        <img src="/icons/clients.svg" alt="Клиенты">
+        <p>Клиенты</p>
+    </a>
 
     <#if isAdmin>
         <a href="/registration">

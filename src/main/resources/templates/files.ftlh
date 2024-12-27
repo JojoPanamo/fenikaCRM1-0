@@ -234,6 +234,7 @@
 <div class="sidebar">
     <a href="/statistics"><img src="/icons/home.svg" alt="Статистика"><p>Статистика</p></a>
     <a href="/deals"><img src="/icons/Vector.svg" alt="Сделки"><p>Сделки</p></a>
+    <a href="/clients"><img src="/icons/clients.svg" alt="Клиенты"><p>Клиенты</p></a>
     <#if isAdmin>
         <a href="/registration"><img src="/icons/reg.svg" alt="Добавить"><p>Добавить<br>менеджера</p></a>
         <a href="/user-settings"><img src="/icons/sett.svg" alt="Настройки"><p>Настройки<br>процентов</p></a>

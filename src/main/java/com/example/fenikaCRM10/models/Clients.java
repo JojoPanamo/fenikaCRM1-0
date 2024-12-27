@@ -1,9 +1,7 @@
 package com.example.fenikaCRM10.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class Clients {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "clientId")
     private Long clientId;
 
@@ -33,6 +32,12 @@ public class Clients {
 
     @Column(name = "additionalContact")
     private String additionalContact;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @JsonIgnore
+    private User user;
 
 //    @Column(name = "additionalPhone")
 //    private String additionalPhone;

@@ -294,6 +294,10 @@
         <img src="/icons/Vector.svg" alt="Сделки">
         <p>Сделки</p>
     </a>
+    <a href="/clients">
+        <img src="/icons/clients.svg" alt="Клиенты">
+        <p>Клиенты</p>
+    </a>
     <#if isAdmin>
         <a href="/registration">
             <img src="/icons/reg.svg" alt="новый пользователь">
@@ -351,17 +355,17 @@
             <div class="field-row">
                 <div class="client-field">
                     <div class="label">Наименование клиента:</div>
-                    <div class="input">${deal.name}</div>
+                    <div class="input">${deal.client.clientName}</div>
                 </div>
                 <div class="client-field">
                     <div class="label">Номер телефона клиента:</div>
-                    <div class="input">${deal.numberPhone}</div>
+                    <div class="input">${deal.client.phoneNumber}</div>
                 </div>
             </div>
             <div class="field-row">
                 <div class="client-field">
                     <div class="label">Эл. почта:</div>
-                    <div class="input">${deal.email}</div>
+                    <div class="input">${deal.client.email}</div>
 
                 </div>
                 <div class="client-field">
@@ -391,7 +395,7 @@
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <!-- Форматированное отображение -->
                         <div class="formatted-sum" hidden="hidden">
-                            ${deal.thinkSum?string("###,###.##")} руб.
+                            ${deal.thinkSum!0 ?string("###,###.##")} руб.
                         </div>
 
                         <!-- Поле ввода для изменения суммы -->

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Информация о сделке</title>
+    <title>Информация о клиенте</title>
     <style>
         /* Основные стили */
         body {
@@ -62,7 +62,7 @@
         .deal-info-container {
             position: relative;
             width: 900px;
-            height: 600px;
+            height: 450px;
             background-color: #FFFFFF;
             border: 1px solid #D1D1D3;
             border-radius: 30px;
@@ -159,6 +159,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             height: 47px;
+            width: 430px;
             /*margin-left: 262px;*/
             /*box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);*/
 
@@ -317,12 +318,12 @@
 <!-- Content -->
 <div class="content">
     <div class="deal-info-container">
-<#--        <div class="deal-info-header">-->
-<#--            Сделка №${deal.dealId}-->
-<#--        </div>-->
+        <#--        <div class="deal-info-header">-->
+        <#--            Сделка №${deal.dealId}-->
+        <#--        </div>-->
         <div class="deal-info-header">
             <div class="header-container">
-                <form action="/deal-info/${dealId}/back" method="get">
+                <form action="/clients/client-info/${clientId}/back" method="get">
                     <button class="delete-button" type="submit" style="background: none; border: none; padding: 0; cursor: pointer; margin-left: 0;">
                         <img src="/icons/back.svg" alt="Назад" style="width: 18px; height: 32px;">
                     </button>
@@ -330,107 +331,80 @@
                 <span style="
                 margin-left: 30px;
                 padding-bottom: 10px;
-                ">Сделка №${dealId}
+                ">${clients.clientName}
         </span>
             </div>
         </div>
 
-        <a href="/statuses/${deal.dealId}" class="deal-status
-            <#if deal.lastStatus == 'Новая заявка'>status-new
-            <#elseif deal.lastStatus == 'В работе'>status-in-progress
-            <#elseif deal.lastStatus == 'Оплачен'>status-paid
-            <#elseif deal.lastStatus == 'Завершен'>status-completed
-            <#elseif deal.lastStatus == 'Отказ'>status-declined</#if>" style="text-decoration: none">
-            ${deal.lastStatus} >
-        </a>
+<#--        <a href="/statuses/${deal.dealId}" class="deal-status-->
+<#--            <#if deal.lastStatus == 'Новая заявка'>status-new-->
+<#--            <#elseif deal.lastStatus == 'В работе'>status-in-progress-->
+<#--            <#elseif deal.lastStatus == 'Оплачен'>status-paid-->
+<#--            <#elseif deal.lastStatus == 'Завершен'>status-completed-->
+<#--            <#elseif deal.lastStatus == 'Отказ'>status-declined</#if>" style="text-decoration: none">-->
+<#--            ${deal.lastStatus} >-->
+<#--        </a>-->
 
-        <div class="client-request">
-            <div class="label">Что запросил клиент:</div>
-            <div class="input">${deal.whatNeed}</div>
-        </div>
-        <br>
-        <br>
+<#--        <div class="client-request">-->
+<#--            <div class="label">Что запросил клиент:</div>-->
+<#--            <div class="input">${deal.whatNeed}</div>-->
+<#--        </div>-->
+<#--        <br>-->
+<#--        <br>-->
 
-        <div class="deal-info-fields">
+        <form action="/clients/update-client" method="post" style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Обязательное скрытое поле с clientId -->
+            <input type="hidden" name="clientId" value="${clients.clientId}">
+
+            <!-- Поля для редактирования -->
             <div class="field-row">
                 <div class="client-field">
                     <div class="label">Наименование клиента:</div>
-                    <div class="input">${deal.client.clientName}</div>
+                    <input type="text" name="clientName" class="input" value="${clients.clientName}" required>
                 </div>
                 <div class="client-field">
                     <div class="label">Номер телефона клиента:</div>
-                    <div class="input">${deal.client.phoneNumber}</div>
+                    <input type="text" name="phoneNumber" class="input" value="${clients.phoneNumber}" required>
                 </div>
             </div>
             <div class="field-row">
                 <div class="client-field">
                     <div class="label">Эл. почта:</div>
-                    <div class="input">${deal.client.email}</div>
-
+                    <input type="email" name="email" class="input" value="${clients.email!''}">
                 </div>
                 <div class="client-field">
-                    <div class="label">Адрес доставки:</div>
-                    <div class="input">${deal.deliveryAdress}</div>
+                    <div class="label">Контактное лицо:</div>
+                    <input type="text" name="clientContact" class="input" value="${clients.clientContact!''}">
                 </div>
             </div>
             <div class="field-row">
                 <div class="client-field">
-                    <div class="label">Откуда:</div>
-                    <div class="input">${deal.whereFrom}</div>
+                    <div class="label">Дополнительный контакт:</div>
+                    <input type="text" name="additionalContact" class="input" value="${clients.additionalContact!''}">
                 </div>
                 <div class="client-field">
                     <div class="label">Ответственный:</div>
-                    <div class="input">${deal.user.name}</div>
-                </div>
-            </div>
-            <div class="field-row">
-                <div class="client-field">
-                    <div class="label">Комментарии:</div>
-                    <div class="input2">
-                        <a href="/comments/${deal.dealId}" style="text-decoration: none; color: #20252B">${deal.lastComment} ></a>
-                    </div>
-                </div>
-                <div class="client-field">
-                    <div class="label1">Предполагаемый бюджет:</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <!-- Форматированное отображение -->
-                        <div class="formatted-sum" hidden="hidden">
-                            ${deal.thinkSum!0 ?string("###,###.##")} руб.
-                        </div>
-
-                        <!-- Поле ввода для изменения суммы -->
-                        <form action="/update-think-sum" method="post" style="display: flex; align-items: center; gap: 10px;">
-                            <input type="hidden" name="dealId" value="${deal.dealId}">
-                            <input
-                                    type="number"
-                                    name="thinkSum"
-                                    value="${deal.thinkSum!0}"
-                                    class="input1"
-                                    style="color: #20252B"
-                                    placeholder="${deal.thinkSum!0} руб.">
-<#--                            <button type="submit" class="save-button">Сохранить</button>-->
-                            </div>
+                    <input type="text" class="input" value="${clients.user.name}" readonly>
                 </div>
             </div>
 
-        </div>
-
-        <div class="deal-links1">
-
-            <button type="submit" class="back-button">Сохранить</button>
-        </div>
-<#--            <form action="/deals" method="get">-->
-<#--            <button type="submit" class="cancel-button">Отменить</button>-->
+            <!-- Кнопка для сохранения -->
+            <div class="button-row">
+                <button type="submit" class="back-button">Сохранить</button>
+            </div>
         </form>
 
-        <div class="deal-links">
-<#--            <a href="/comments/${deal.dealId}">${deal.lastComment} ></a>-->
-            <a href="/files/${deal.dealId}">Вложения ></a>
-            <a href="/payments/${deal.dealId}">Оплаты ></a>
-<#--            <a href="/statuses/${deal.dealId}">Статус ></a>-->
-        </div>
+
+        <#--        <div class="deal-links">-->
+<#--            &lt;#&ndash;            <a href="/comments/${deal.dealId}">${deal.lastComment} ></a>&ndash;&gt;-->
+<#--            <a href="/files/${deal.dealId}">Вложения ></a>-->
+<#--            <a href="/payments/${deal.dealId}">Оплаты ></a>-->
+<#--            &lt;#&ndash;            <a href="/statuses/${deal.dealId}">Статус ></a>&ndash;&gt;-->
+<#--        </div>-->
     </div>
 </div>
+
+
 
 </body>
 </html>

@@ -1,5 +1,6 @@
 package com.example.fenikaCRM10.controllers;
 
+import com.example.fenikaCRM10.models.Clients;
 import com.example.fenikaCRM10.models.Deal;
 import com.example.fenikaCRM10.models.User;
 import com.example.fenikaCRM10.repositories.DealRepository;
@@ -26,6 +27,7 @@ public class DealController {
     private final PaymentsService paymentsService;
     private final StatusesService statusesService;
     private final CommentService commentService;
+    private final ClientService clientService;
 
     //    @GetMapping("/deals/")
 //    public String deals(@RequestParam(name = "name", required = false) String name, Model model) {
@@ -78,8 +80,10 @@ public class DealController {
             String formattedTotalPayments = numberFormat.format(totalPayments) + " руб.";
             deal.setTotalPayments(formattedTotalPayments);
         }
+        Clients client = null;
 
         // Добавляем атрибуты для модели
+        model.addAttribute("clients", client);
         model.addAttribute("deals", deals);
         model.addAttribute("selectedStatuses", statuses);
         model.addAttribute("isAdmin", isAdmin);
@@ -92,27 +96,34 @@ public class DealController {
         return "deals"; // Возвращаем страницу сделок
     }
 
-
-
-
-
-
-
     @PostMapping("/deal-create-save")
-    public String createDealSave(@ModelAttribute Deal deal, Principal principal) {
+    public String createDealSave(@RequestParam String clientName,
+                                 @RequestParam String phoneNumber,
+                                 @RequestParam String email,
+                                 @RequestParam(required = false) Long clientId,
+                                 @ModelAttribute Deal deal,
+                                 Principal principal) {
+        Clients client;
+        if (clientId != null) {
+            // Если ID клиента существует, ищем клиента в базе
+            client = clientService.getClientById(clientId)
+                    .orElseThrow(() -> new RuntimeException("Клиент не найден"));
+        } else {
+            // Если ID клиента нет, создаем нового клиента
+            client = clientService.findOrCreateClient(clientName, phoneNumber, email);
+        }
+        deal.setClient(client);
+
+
         // Получаем текущего пользователя
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userService.findById(userDetails.getId());
-
-        // Устанавливаем пользователя сделки
         deal.setUser(currentUser);
-
-        // Устанавливаем автора сделки
         deal.setAuthor(currentUser.getName());
+        client.setUser(currentUser);
 
         // Сохраняем сделку
         dealService.saveDeal(deal);
-
 
         return "redirect:/deals";
     }
@@ -202,7 +213,15 @@ public class DealController {
         boolean isAdmin = currentUser.getRoles().stream()
                 .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
         String userName = currentUser.getName();
+        Clients client = new Clients();
+        client.setClientName(null);
+        client.setPhoneNumber(null);
+        client.setEmail(null);
+        client.setClientContact(null);
+        client.setUser(currentUser);
 
+        model.addAttribute("client", client);
+        model.addAttribute("query", "");
         model.addAttribute("userName", userName);
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("whereFromOptions", DealServiceList.getAuthors());
@@ -222,4 +241,6 @@ public class DealController {
     public List<Deal> findDealsByUser(Long userId) {
         return dealRepository.findByUser_UserId(userId);
     }
+
+
 }

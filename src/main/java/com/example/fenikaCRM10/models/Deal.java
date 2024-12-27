@@ -20,8 +20,8 @@ public class Deal {
     @Column(name = "name")
     private String name;
 //    private String nameContact;
-    @Column(name = "numberPhone")
-    private String numberPhone;
+//    @Column(name = "numberPhone")
+//    private String numberPhone;
     @Column(name = "whatNeed")
     private String whatNeed;
     @Column(name = "deliveryAdress")
@@ -29,8 +29,8 @@ public class Deal {
 //    private String comment;
     @Column(name = "author")
     private String author;
-    @Column(name = "email")
-    private String email;
+//    @Column(name = "email")
+//    private String email;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false) // Привязываем сделку к пользователю
     private User user;
@@ -50,4 +50,7 @@ public class Deal {
     private String whereFrom;
     @Transient
     private String totalPayments;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "clientId", referencedColumnName = "clientId")
+    private Clients client;
 }
