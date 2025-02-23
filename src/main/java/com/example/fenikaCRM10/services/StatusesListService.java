@@ -13,6 +13,7 @@ public class StatusesListService {
         statusesList.add("Оплачен");
         statusesList.add("Завершен");
         statusesList.add("Отказ");
+        statusesList.add("Рассчитана");
     }
     public static List<String> getStatusesList() {
         return statusesList;

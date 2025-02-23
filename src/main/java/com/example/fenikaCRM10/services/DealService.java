@@ -1,10 +1,7 @@
 package com.example.fenikaCRM10.services;
 
 import com.example.fenikaCRM10.models.*;
-import com.example.fenikaCRM10.repositories.CommentRepository;
-import com.example.fenikaCRM10.repositories.DealRepository;
-import com.example.fenikaCRM10.repositories.PaymentsRepository;
-import com.example.fenikaCRM10.repositories.StatusesRepository;
+import com.example.fenikaCRM10.repositories.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +23,10 @@ public class DealService {
     private final UserService userService;
     private final PaymentsRepository paymentsRepository;
     private final CommentRepository commentRepository;
+    private final StatusesService statusesService;
+    private final DealServiceList dealServiceList;
+    private final WeeklyManagerProfitRepository weeklyManagerProfitRepository;
+//    private final ManagerProfitService managerProfitService;
 
 
     // Метод для поиска сделок по имени
@@ -46,7 +48,8 @@ public class DealService {
         newStatus.setDealId(deal.getDealId());  // Присваиваем ID сделки
         newStatus.setStatusChoose("Новая заявка");  // Устанавливаем статус "Новая заявка"
         newStatus.setStatusComment("связаться в течение 30 минут!");    // Устанавливаем комментарий
-        newStatus.setCurrentDate(DateService.getCurrentDate());     // Устанавливаем текущую дату
+        newStatus.setCurrentDate(DateService.getCurrentDate());
+        deal.setLastStatus(deal.getLastStatus());// Устанавливаем текущую дату
 
         // Сохраняем новый статус в базу данных
         statusesRepository.save(newStatus);
@@ -112,7 +115,15 @@ public class DealService {
         return count;
     }
     public List<Deal> findDealsByStatuses(User user, List<String> statuses) {
-        return dealRepository.findByUserAndStatuses(user, statuses);  // Поиск сделок по статусам и пользователю
+        List<Deal> deals = dealRepository.findByUserAndStatuses(user, statuses);
+        for (Deal deal : deals) {
+            String lastStatus = statusesService.getLastStatusForDeal(deal.getDealId());
+            String lastStatusDate = statusesService.getLastStatusDateForDeal(deal.getDealId());
+
+            deal.setLastStatus(lastStatus != null ? lastStatus : "Статус не установлен");
+            deal.setLastStatusDate(lastStatusDate != null ? lastStatusDate : "Дата не установлена");
+        }
+        return deals;  // Поиск сделок по статусам и пользователю
     }
     public List<Deal> getDealsForCurrentMonth() {
         LocalDate now = LocalDate.now();
@@ -166,7 +177,16 @@ public class DealService {
         return new StatisticsDTO(companyProfit, managerProfit, totalPayments, completedDealNames, pendingDealNames);
     }
     public List<Deal> findDealsByStatusesForAdmin(List<String> statuses) {
-        return dealRepository.findAllDealsByStatuses(statuses);
+
+        List<Deal> deals = dealRepository.findAllDealsByStatuses(statuses);
+        for (Deal deal : deals) {
+            String lastStatus = statusesService.getLastStatusForDeal(deal.getDealId());
+            String lastStatusDate = statusesService.getLastStatusDateForDeal(deal.getDealId());
+
+            deal.setLastStatus(lastStatus != null ? lastStatus : "Статус не установлен");
+            deal.setLastStatusDate(lastStatusDate != null ? lastStatusDate : "Дата не установлена");
+        }
+        return deals;
     }
     public int getTotalCompletedDealsCount() {
         LocalDate now = LocalDate.now();
@@ -237,4 +257,101 @@ public class DealService {
         }
         return deals;
     }
+    public Map<Integer, Double> getManagerProfitByWeeks(int year, int month, Long userId, boolean isAdmin) {
+        List<Deal> deals = isAdmin
+                ? dealRepository.findByMonthAndYear(month, year)
+                : dealRepository.findByUser_UserId(userId).stream()
+                .filter(deal -> deal.getCreationDate().getMonthValue() == month && deal.getCreationDate().getYear() == year)
+                .collect(Collectors.toList());
+
+        Map<Integer, Double> weeklyProfit = new HashMap<>();
+        WeekFields weekFields = WeekFields.of(Locale.getDefault());
+
+        for (Deal deal : deals) {
+            Optional<Statuses> completedStatus = statusesRepository.findTopByDealIdOrderByStatusIdDesc(deal.getDealId());
+            if (completedStatus.isPresent() && "Завершен".equals(completedStatus.get().getStatusChoose())) {
+                LocalDate statusDate = LocalDate.parse(completedStatus.get().getCurrentDate());
+                int weekOfMonth = statusDate.get(weekFields.weekOfMonth());
+
+                double profit = paymentsService.getManagerProfit(deal.getDealId(), userService.findById(userId));
+                weeklyProfit.put(weekOfMonth, weeklyProfit.getOrDefault(weekOfMonth, 0.0) + profit);
+            }
+        }
+
+        return weeklyProfit;
+    }
+
+//    public void markDealAsCompleted(Long dealId) {
+//        Deal deal = dealRepository.findById(dealId).orElseThrow(() -> new RuntimeException("Сделка не найдена"));
+//        Statuses completedStatus = new Statuses();
+//        completedStatus.setDealId(deal.getDealId());
+//        completedStatus.setStatusChoose("Завершен");
+//        completedStatus.setCurrentDate(DateService.getCurrentDate());
+//        statusesRepository.save(completedStatus);
+//
+//        // Добавляем запись в ManagerProfit
+//        managerProfitService.addProfitRecord(deal);
+//    }
+public void updateLastStatus(Long dealId) {
+    // Получаем последний статус из таблицы статусов
+    Statuses lastStatus = statusesRepository.findLastStatusByDealId(dealId);
+    if (lastStatus != null) {
+        // Находим сделку
+        Deal deal = dealRepository.findById(dealId)
+                .orElseThrow(() -> new RuntimeException("Сделка не найдена"));
+
+        // Обновляем поле lastStatus
+        deal.setLastStatus(lastStatus.getStatusChoose());
+
+        // Сохраняем изменения
+        dealRepository.save(deal);
+
+        // Если статус завершен, обновляем WeeklyManagerProfit
+        if ("Завершен".equals(lastStatus.getStatusChoose())) {
+            LocalDate creationDate = deal.getCreationDate();
+            User user = deal.getUser();
+            int year = creationDate.getYear();
+            int month = creationDate.getMonthValue();
+
+            // Вызываем метод для обновления WeeklyManagerProfit
+            updateWeeklyManagerProfit(user, year, month);
+        }
+    } else {
+        log.warn("Не найден последний статус для сделки с ID: {}", dealId);
+    }
+}
+    public void updateWeeklyManagerProfit(User user, int year, int month) {
+        // Получаем все завершенные сделки пользователя за указанный месяц
+        List<Deal> completedDeals = dealRepository.findByUserAndStatusAndMonthAndYear(
+                user.getUserId(), "Завершен", month, year);
+
+        // Проходим по всем неделям (максимум 5 недель в месяце)
+        for (int week = 1; week <= 5; week++) {
+            final int currentWeek = week;
+            // Считаем прибыль менеджера за неделю
+            double weeklyProfit = completedDeals.stream()
+                    .filter(deal -> getWeekOfMonth(deal.getCreationDate()) == currentWeek)
+                    .mapToDouble(Deal::getThinkSum)
+                    .sum();
+
+            // Обновляем или создаем запись в WeeklyManagerProfit
+            WeeklyManagerProfit weeklyManagerProfit = weeklyManagerProfitRepository
+                    .findByUserAndYearAndMonthAndWeek(user, year, month, week)
+                    .orElse(new WeeklyManagerProfit(user, year, month, week, 0.0, 0.0));
+
+            weeklyManagerProfit.setManagerProfit(weeklyProfit);
+            weeklyManagerProfitRepository.save(weeklyManagerProfit);
+            log.warn("Обновляем WeeklyManagerProfit для пользователя: {}, год: {}, месяц: {}", user.getName(), year, month);
+
+        }
+    }
+
+    // Получение недели месяца
+    private int getWeekOfMonth(LocalDate date) {
+        return date.get(WeekFields.of(Locale.getDefault()).weekOfMonth());
+    }
+
+
+
+
 }

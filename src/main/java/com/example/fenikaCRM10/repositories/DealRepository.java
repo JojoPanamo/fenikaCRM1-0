@@ -65,7 +65,8 @@ public interface DealRepository extends JpaRepository<Deal, Long> {
     int countDealsByLastStatusAndUserForMonth(@Param("user") User user, @Param("status") String status,
                                               @Param("month") int month, @Param("year") int year);
 
-
+    @Query("SELECT d FROM Deal d JOIN Statuses s ON d.dealId = s.dealId WHERE d.status = 'Завершен' ORDER BY s.currentDate DESC")
+    List<Deal> findCompletedDealsSortedByStatusDate();
 
 
 
@@ -73,6 +74,15 @@ public interface DealRepository extends JpaRepository<Deal, Long> {
 //    int countByStatus(String status);
 //
 //    int countByStatusIn(List<String> statuses);
+@Query("SELECT d FROM Deal d " +
+        "WHERE d.user.userId = :userId " +
+        "AND d.lastStatus = :status " +
+        "AND FUNCTION('MONTH', d.creationDate) = :month " +
+        "AND FUNCTION('YEAR', d.creationDate) = :year")
+List<Deal> findByUserAndStatusAndMonthAndYear(@Param("userId") Long userId,
+                                              @Param("status") String status,
+                                              @Param("month") int month,
+                                              @Param("year") int year);
 
 
 

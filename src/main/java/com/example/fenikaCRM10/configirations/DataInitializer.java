@@ -45,16 +45,16 @@ public class DataInitializer implements CommandLineRunner {
             georgiy.setActive(true);
             userService.createUser(georgiy);
         }
-        if (userService.findByEmail("work@gmail.com") == null) {
-            User snezha = new User();
-            snezha.setName("Снежана Юрченко");
-            snezha.setPhoneNumber("89811419730");
-            snezha.setEmail("work@gmail.com");
-            snezha.setPercentage(1);
-            snezha.setPassword(passwordEncoder.encode("19042015GsP!@#$"));
-            snezha.setRoles(new HashSet<>(Set.of(Role.ROLE_USER)));
-            snezha.setActive(true);
-            userService.createUser(snezha);
-        }
+//        if (userService.findByEmail("work@gmail.com") == null) {
+//            User snezha = new User();
+//            snezha.setName("Снежана Юрченко");
+//            snezha.setPhoneNumber("89811419730");
+//            snezha.setEmail("work@gmail.com");
+//            snezha.setPercentage(1);
+//            snezha.setPassword(passwordEncoder.encode("19042015GsP!@#$"));
+//            snezha.setRoles(new HashSet<>(Set.of(Role.ROLE_USER)));
+//            snezha.setActive(true);
+//            userService.createUser(snezha);
+//        }
     }
 }

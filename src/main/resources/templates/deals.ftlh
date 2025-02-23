@@ -251,9 +251,12 @@
                     <td>
                         <#if deal.lastStatus??>
                             <span class="<#if deal.lastStatus == 'Новая заявка'>status-new<#elseif deal.lastStatus == 'В работе'>status-in-progress<#elseif deal.lastStatus == 'Оплачен'>status-paid<#elseif deal.lastStatus == 'Завершен'>status-completed<#elseif deal.lastStatus == 'Отказ'>status-declined</#if>" style="border-radius: 5px;
-            border: 1px solid #D1D1D3; padding: 4px; border-radius: 3px">
+            border: 1px solid #D1D1D3; padding: 4px; border-radius: 3px; margin-bottom: 10px">
                     ${deal.lastStatus}
                 </span>
+                            <br>
+                            <div style="margin-bottom: 5px"></div>
+                            <small>${deal.lastStatusDate?substring(0, 10)}</small>
                         <#else>
                             <span>Статус не установлен</span>
                         </#if>

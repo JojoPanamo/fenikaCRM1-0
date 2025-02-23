@@ -38,7 +38,7 @@ public class Deal {
     private double companyProfit;
     @Column(name = "status")
     private String status;
-    @Transient
+    @Column(name = "lastStatus")
     private String lastStatus;
     @Transient
     private String lastComment;
@@ -53,4 +53,6 @@ public class Deal {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clientId", referencedColumnName = "clientId")
     private Clients client;
+    @Transient
+    private String lastStatusDate;
 }

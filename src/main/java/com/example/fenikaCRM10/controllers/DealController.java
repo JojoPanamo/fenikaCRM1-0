@@ -67,19 +67,32 @@ public class DealController {
             deals = dealService.findDealsByStatuses(currentUser, statuses);
         }
 
+        if (statuses.contains("Завершен")) {
+            deals.sort((d1, d2) -> {
+                if ("Завершен".equals(d1.getLastStatus()) && "Завершен".equals(d2.getLastStatus())) {
+                    return d2.getLastStatusDate().compareTo(d1.getLastStatusDate());
+                }
+                return 0; // Сохраняем порядок для остальных сделок
+            });
+        }
+
         // Формат для суммы
         NumberFormat numberFormat = NumberFormat.getInstance(new Locale("ru", "RU"));
 
         // Заполняем данные по сделкам
         for (Deal deal : deals) {
             String lastStatus = statusesService.getLastStatusForDeal(deal.getDealId());
+            String lastStatusDate = statusesService.getLastStatusDateForDeal(deal.getDealId());
             deal.setLastStatus(lastStatus != null ? lastStatus : "Статус не установлен");
+            deal.setLastStatusDate(lastStatusDate != null ? lastStatusDate : "Дата не установлена");
 
             // Заполнение суммы поступлений с форматированием
             double totalPayments = paymentsService.getTotalPaymentsInside(deal.getDealId());
             String formattedTotalPayments = numberFormat.format(totalPayments) + " руб.";
             deal.setTotalPayments(formattedTotalPayments);
         }
+
+
         Clients client = null;
 
         // Добавляем атрибуты для модели
@@ -191,20 +204,31 @@ public class DealController {
     }
     @PostMapping("/update-think-sum")
     public String updateThinkSum(@RequestParam("dealId") Long dealId,
-                                 @RequestParam("thinkSum") Double thinkSum, Model model) {
+                                 @RequestParam(value = "thinkSum", required = false) Double thinkSum, Model model) {
         CustomUserDetails userDetailsInfo = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userService.findById(userDetailsInfo.getId());
 
         // Проверка роли администратора
         boolean isAdmin = currentUser.getRoles().stream()
                 .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+
+        // Получаем текущую сделку
+        Deal deal = dealService.getDealById(dealId);
+
+        // Если `thinkSum` не передан, используем текущее значение из базы
+        if (thinkSum == null) {
+            thinkSum = deal.getThinkSum();
+        }
+
         // Обновляем сумму через сервис
         dealService.updateThinkSum(dealId, thinkSum);
 
         model.addAttribute("isAdmin", isAdmin);
+
         // Перенаправляем обратно на страницу информации о сделке
         return "redirect:/deal-info/" + dealId;
     }
+
 
     @GetMapping("/deal-create")
     public String dealCreatePAge(Model model) {
